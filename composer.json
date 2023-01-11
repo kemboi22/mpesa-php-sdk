@@ -1,0 +1,17 @@
+{
+    "name": "kemboielvis/mpesa-sdk-php",
+    "type": "library",
+    "autoload": {
+        "psr-4": {
+            "Kemboielvis\\MpesaSdkPhp\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "kemboielvis"
+        }
+    ],
+    "require": {
+      "ext-curl": "*"
+    }
+}
