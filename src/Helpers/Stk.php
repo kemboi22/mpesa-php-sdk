@@ -8,10 +8,6 @@ class Stk extends Mpesa
 {
     public function __construct($data)
     {
-        parent::__construct([
-            "consumer_secret" =>$this->consumer_secret,
-            "consumer_key" => $this->consumer_key
-        ]);
 
         $this->configure($data);
     }
