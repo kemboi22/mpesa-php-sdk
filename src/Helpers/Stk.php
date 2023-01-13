@@ -8,7 +8,6 @@ class Stk extends Mpesa
 {
     public function __construct($data)
     {
-
         $this->configure($data);
     }
 
@@ -65,11 +64,7 @@ class Stk extends Mpesa
         $this->response = $this->curls($array_data, $this->stk_push_url);
         return $this;
     }
-    public function business_code(string $business_code): static
-    {
-        $this->business_code = $business_code;
-        return $this;
-    }
+
 
     public function pass_key(string $pass_key): static
     {
@@ -81,20 +76,8 @@ class Stk extends Mpesa
         $this->transaction_type = $transaction_type;
         return $this;
     }
-    public function phone_number(string $phone): static
-    {
-//        if($phone[0] == "+") $phone = substr($phone, 1);
-//        if($phone[0] == "0") $phone = substr($phone, 1);
-//        if($phone[0] == "7") $phone = "254" . $phone;
 
-        $this->phone_number = $phone;
-        return $this;
-    }
-    public  function amount(int $amount): static
-    {
-        $this->amount = $amount;
-        return $this;
-    }
+
     public function call_back_url($url): static
     {
         $this->call_back_url = $url;
