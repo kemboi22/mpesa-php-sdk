@@ -2,6 +2,7 @@
 
 namespace Kemboielvis\MpesaSdkPhp;
 
+use Kemboielvis\MpesaSdkPhp\Helpers\BusinessToCustomer;
 use Kemboielvis\MpesaSdkPhp\Helpers\CustomerToBusiness;
 use Kemboielvis\MpesaSdkPhp\Helpers\Stk;
 
@@ -52,6 +53,48 @@ class Mpesa
     {
         return base64_encode($this->business_code.$this->pass_key.$this->timestamp());
     }
+    public function business_code(string $business_code): static
+    {
+        $this->business_code = $business_code;
+        return $this;
+    }
+
+    public  function amount(int $amount): static
+    {
+        $this->amount = $amount;
+        return $this;
+    }
+
+    public function phone_number(string $phone): static
+    {
+//        if($phone[0] == "+") $phone = substr($phone, 1);
+//        if($phone[0] == "0") $phone = substr($phone, 1);
+//        if($phone[0] == "7") $phone = "254" . $phone;
+
+        $this->phone_number = $phone;
+        return $this;
+    }
+    public function consumer_key(string $consumer_key): static
+    {
+        $this->consumer_key = $consumer_key;
+        return $this;
+    }
+
+    public function consumer_secret(string $consumer_secret): static
+    {
+        $this->consumer_secret = $consumer_secret;
+        return $this;
+    }
+
+    public function pass_key(string $pass_key): static
+    {
+        $this->pass_key = $pass_key;
+        return $this;
+    }
+
+    public function response(){
+        return $this->response;
+    }
 
     public function authentication_token(){
         $curl_transfer = curl_init();
@@ -90,54 +133,13 @@ class Mpesa
         ]);
     }
 
-    public function consumer_key(string $consumer_key): static
-    {
-        $this->consumer_key = $consumer_key;
-        return $this;
-    }
-
-    public function consumer_secret(string $consumer_secret): static
-    {
-        $this->consumer_secret = $consumer_secret;
-        return $this;
-    }
-
-    public function pass_key(string $pass_key): static
-    {
-        $this->pass_key = $pass_key;
-        return $this;
-    }
-
-    public function response(){
-        return $this->response;
-    }
-
     public function customer_to_business(){
         return new CustomerToBusiness();
     }
 
-    public function business_code(string $business_code): static
-    {
-        $this->business_code = $business_code;
-        return $this;
+    public function business_to_customer(){
+        return new BusinessToCustomer();
     }
-
-    public  function amount(int $amount): static
-    {
-        $this->amount = $amount;
-        return $this;
-    }
-
-    public function phone_number(string $phone): static
-    {
-//        if($phone[0] == "+") $phone = substr($phone, 1);
-//        if($phone[0] == "0") $phone = substr($phone, 1);
-//        if($phone[0] == "7") $phone = "254" . $phone;
-
-        $this->phone_number = $phone;
-        return $this;
-    }
-
 
 
 }
