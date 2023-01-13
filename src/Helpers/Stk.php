@@ -62,7 +62,8 @@ class Stk extends Mpesa
             "TransactionDesc" => "Payment of X"
 
         ];
-        return $this->curls($array_data, $this->stk_push_url);
+        $this->response = $this->curls($array_data, $this->stk_push_url);
+        return $this;
     }
     public function business_code(string $business_code): static
     {
@@ -99,6 +100,20 @@ class Stk extends Mpesa
         $this->call_back_url = $url;
         return $this;
     }
+    public function checkout_id(){
+        return $this->response->CheckoutRequestID;
+    }
 
+
+    public function Query()
+    {
+        $array_data = [
+            "BusinessShortCode" => $this->business_code,
+            "Password" => $this->password(),
+            "Timestamp" => $this->timestamp(),
+            "CheckoutRequestID" => $this->checkout_id()
+        ];
+        return $this->curls($array_data, "https://sandbox.safaricom.co.ke/mpesa/stkpushquery/v1/query");
+    }
 
 }

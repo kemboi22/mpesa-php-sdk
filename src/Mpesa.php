@@ -6,8 +6,8 @@ use Kemboielvis\MpesaSdkPhp\Helpers\Stk;
 
 class Mpesa
 {
-    public string $consumer_key = "";
-    public string $consumer_secret = "";
+    public string $consumer_key = "Kuu9J6dcwaSnZjr3iyHKIwXvFCXkkt8y";
+    public string $consumer_secret = "ljjSvwG5uvvTccdG";
     public  string $business_code = "";
     public string $pass_key = "";
     public string $transaction_type = "";
@@ -19,9 +19,12 @@ class Mpesa
     public string $stk_push_url = "https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest";
     public string $token = "";
 
-    public function __construct($data)
+    public object $response;
+
+    public function __construct($key, $secret)
     {
-        $this->configure($data);
+        $this->consumer_key = $key;
+        $this->consumer_secret = $secret;
 
     }
 
