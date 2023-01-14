@@ -5,12 +5,9 @@ namespace Kemboielvis\MpesaSdkPhp\Helpers;
 class BusinessToCustomer extends \Kemboielvis\MpesaSdkPhp\Mpesa
 {
     private string $initiator_name = "";
-    private string $security_credential = "";
     private string $command_id = "";
     private string $remarks = "";
-    private string $queue_timeout_url = "";
     private string $occasion = "";
-    private string $result_url = "";
 
 
     public function initiator_name($initiator_name): static
@@ -18,15 +15,7 @@ class BusinessToCustomer extends \Kemboielvis\MpesaSdkPhp\Mpesa
         $this->initiator_name = $initiator_name;
         return $this;
     }
-    public function security_credential($initiator_password): static
-    {
-        $method = "aes-256-cbc";
-        $password = "mypassword";
-        $ivlen = openssl_cipher_iv_length($method);
-        $iv = openssl_random_pseudo_bytes($ivlen);
-        $this->security_credential = base64_encode($iv.openssl_encrypt("$initiator_password + Certificate", $method, $password, 0, $iv));
-        return $this;
-    }
+
 
     public function command_id($command_id): static
     {
@@ -38,21 +27,13 @@ class BusinessToCustomer extends \Kemboielvis\MpesaSdkPhp\Mpesa
         $this->remarks = $remarks;
         return $this;
     }
-    public function queue_timeout_url($timeout_url): static
-    {
-        $this->queue_timeout_url = $timeout_url;
-        return $this;
-    }
+
     public function occasion($occasion): static
     {
         $this->occasion = $occasion;
         return $this;
     }
-    public function result_url($result_url): static
-    {
-        $this->result_url = $result_url;
-        return $this;
-    }
+
 
     public function payment_request($initiator_name = null, $initiator_password = null, $command_id = null, $amount = null, $partyA = null, $phone_number = null, $remarks = null, $queue_timeout_url = null, $result_url = null, $occasion = null): static
     {

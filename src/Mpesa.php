@@ -15,13 +15,15 @@ class Mpesa
     public string $transaction_type = "";
     public string $token_url = "https://sandbox.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials";
     public string $phone_number = "";
-    public string $onine_payment = "";
+
     public string $amount = "";
     public string $call_back_url = "https://mydomain.com/path";
     public string $stk_push_url = "https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest";
-    public string $token = "";
+    public string $security_credential = "";
 
     public object $response;
+    public string $queue_timeout_url = "";
+    public string $result_url = "";
 
 //    public function __construct($key, $secret)
 //    {
@@ -94,6 +96,26 @@ class Mpesa
 
     public function response(){
         return $this->response;
+    }
+    public function security_credential($initiator_password): static
+    {
+        $method = "aes-256-cbc";
+        $password = "mypassword";
+        $ivlen = openssl_cipher_iv_length($method);
+        $iv = openssl_random_pseudo_bytes($ivlen);
+        $this->security_credential = base64_encode($iv.openssl_encrypt("$initiator_password + Certificate", $method, $password, 0, $iv));
+        return $this;
+    }
+
+    public function result_url($result_url): static
+    {
+        $this->result_url = $result_url;
+        return $this;
+    }
+    public function queue_timeout_url($timeout_url): static
+    {
+        $this->queue_timeout_url = $timeout_url;
+        return $this;
     }
 
     public function authentication_token(){
