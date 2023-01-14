@@ -2,9 +2,11 @@
 
 namespace Kemboielvis\MpesaSdkPhp;
 
+use Kemboielvis\MpesaSdkPhp\Helpers\AccountBalance;
 use Kemboielvis\MpesaSdkPhp\Helpers\BusinessToCustomer;
 use Kemboielvis\MpesaSdkPhp\Helpers\CustomerToBusiness;
 use Kemboielvis\MpesaSdkPhp\Helpers\Stk;
+use Kemboielvis\MpesaSdkPhp\Helpers\TransactionStatus;
 
 class Mpesa
 {
@@ -155,12 +157,24 @@ class Mpesa
         ]);
     }
 
-    public function customer_to_business(){
+    public function customer_to_business(): CustomerToBusiness
+    {
         return new CustomerToBusiness();
     }
 
-    public function business_to_customer(){
+    public function business_to_customer(): BusinessToCustomer
+    {
         return new BusinessToCustomer();
+    }
+
+    public function check_balance(): AccountBalance
+    {
+        return new AccountBalance();
+    }
+
+    public function transaction_status(): TransactionStatus
+    {
+        return new TransactionStatus();
     }
 
 
