@@ -34,6 +34,12 @@ class BusinessToCustomer extends \Kemboielvis\MpesaSdkPhp\Mpesa
         return $this;
     }
 
+    public function __construct($consumer_key, $consumer_secret)
+    {
+        $this->consumer_key = $consumer_key;
+        $this->consumer_secret = $consumer_secret;
+    }
+
 
     public function payment_request($initiator_name = null, $initiator_password = null, $command_id = null, $amount = null, $partyA = null, $phone_number = null, $remarks = null, $queue_timeout_url = null, $result_url = null, $occasion = null): static
     {

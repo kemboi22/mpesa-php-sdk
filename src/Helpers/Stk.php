@@ -19,6 +19,8 @@ class Stk extends Mpesa
                 if (array_key_exists("amount", $data)){
                     if (array_key_exists("phone_number", $data)){
                         if (array_key_exists("call_back_url", $data)){
+                            $this->consumer_key = $data["consumer_key"];
+                            $this->consumer_secret = $data["consumer_secret"];
                             $this->business_code = $data["business_code"];
                             $this->transaction_type = $data["transaction_type"];
                             $this->amount = $data["amount"];

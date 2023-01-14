@@ -11,8 +11,9 @@ use Kemboielvis\MpesaSdkPhp\Helpers\TransactionStatus;
 
 class Mpesa
 {
-    public string $consumer_key = "Kuu9J6dcwaSnZjr3iyHKIwXvFCXkkt8y";
-    public string $consumer_secret = "ljjSvwG5uvvTccdG";
+
+    public  string $consumer_key = "";
+    public string $consumer_secret = "";
     public  string $business_code = "";
     public string $pass_key = "";
     public string $transaction_type = "";
@@ -28,25 +29,18 @@ class Mpesa
     public string $queue_timeout_url = "";
     public string $result_url = "";
 
-//    public function __construct($key, $secret)
+//    public function __construct($key = null, $secret = null)
 //    {
-//        $this->consumer_key = $key;
-//        $this->consumer_secret = $secret;
+//        $this->set_credentials();
+//        return $this;
 //
 //    }
 
-    public function configure(array $data){
-        if (array_key_exists("consumer_key", $data)){
-            if (array_key_exists("consumer_secret", $data)){
-               $this->consumer_key = (string)$data["consumer_key"];
-               $this->consumer_secret = (string)$data["consumer_secret"];
-               return $this;
-            }else{
-                throw new \Exception("Consumer Key is required");
-            }
-        }else{
-            throw new \Exception("Consumer Secret is required");
-        }
+    public function set_credentials($consumer_key = null, $consumer_secret = null): static
+    {
+        if ($consumer_key != null) $this->consumer_key($consumer_key);
+        if ($consumer_secret != null) $this->consumer_secret($consumer_secret);
+        return $this;
     }
 
 
@@ -148,8 +142,11 @@ class Mpesa
         return json_decode($response);
     }
 
-    public function stk(){
+    public function stk(): Stk
+    {
         return new Stk([
+            "consumer_key" => $this->consumer_key,
+            "consumer_secret" => $this->consumer_secret,
             "business_code" => $this->business_code,
             "transaction_type" => $this->transaction_type,
             "amount" => $this->amount,
@@ -160,28 +157,27 @@ class Mpesa
 
     public function customer_to_business(): CustomerToBusiness
     {
-        return new CustomerToBusiness();
+        return new CustomerToBusiness($this->consumer_key, $this->consumer_secret);
     }
 
     public function business_to_customer(): BusinessToCustomer
     {
-        return new BusinessToCustomer();
+        return new BusinessToCustomer($this->consumer_key, $this->consumer_secret);
     }
 
     public function check_balance(): AccountBalance
     {
-        return new AccountBalance();
+        return new AccountBalance($this->consumer_key, $this->consumer_secret);
     }
 
     public function transaction_status(): TransactionStatus
     {
-        return new TransactionStatus();
+        return new TransactionStatus($this->consumer_key, $this->consumer_secret);
     }
 
     public function reversal(): Reversal
     {
-        return new Reversal();
+        return new Reversal($this->consumer_key, $this->consumer_secret);
     }
-
 
 }

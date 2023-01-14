@@ -39,8 +39,11 @@ class TransactionStatus extends \Kemboielvis\MpesaSdkPhp\Mpesa
         return $this;
     }
 
-
-
+    public function __construct($consumer_key, $consumer_secret)
+    {
+        $this->consumer_key = $consumer_key;
+        $this->consumer_secret = $consumer_secret;
+    }
 
     public function check_transaction_status($initiator = null, $initiator_password= null, $remarks = null, $partyA = null, $transaction_id = null, $identifier_type = null, $queue_timeout_url = null, $result_url = null, $occasion = null): static
     {
