@@ -5,6 +5,7 @@ namespace Kemboielvis\MpesaSdkPhp;
 use Kemboielvis\MpesaSdkPhp\Helpers\AccountBalance;
 use Kemboielvis\MpesaSdkPhp\Helpers\BusinessToCustomer;
 use Kemboielvis\MpesaSdkPhp\Helpers\CustomerToBusiness;
+use Kemboielvis\MpesaSdkPhp\Helpers\Reversal;
 use Kemboielvis\MpesaSdkPhp\Helpers\Stk;
 use Kemboielvis\MpesaSdkPhp\Helpers\TransactionStatus;
 
@@ -175,6 +176,11 @@ class Mpesa
     public function transaction_status(): TransactionStatus
     {
         return new TransactionStatus();
+    }
+
+    public function reversal(): Reversal
+    {
+        return new Reversal();
     }
 
 
