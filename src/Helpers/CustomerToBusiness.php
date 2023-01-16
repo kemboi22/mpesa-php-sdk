@@ -10,11 +10,11 @@ class CustomerToBusiness extends \Kemboielvis\MpesaSdkPhp\Mpesa
     private string $command_id = "";
     private string $bill_ref_number = "";
 
-    public function register_url($confirmation_url = null, $validation_url = null, $response_type = null): static
+    public function registerUrl($confirmation_url = null, $validation_url = null, $response_type = null): static
     {
-        if($response_type != null){ $this->response_type = $response_type; }
-        if($confirmation_url != null) { $this->confirmation_url = $confirmation_url; }
-        if ($response_type != null) { $this->validation_url = $validation_url; }
+        if($response_type != null){ $this->responseType($response_type); }
+        if($confirmation_url != null) { $this->confirmationUrl($confirmation_url) ; }
+        if ($response_type != null) { $this->validationUrl($validation_url); }
         $array_data = [
             "ShortCode" => $this->business_code,
             "ResponseType" => $this->response_type ,
@@ -26,18 +26,18 @@ class CustomerToBusiness extends \Kemboielvis\MpesaSdkPhp\Mpesa
 
     }
 
-    public function confirmation_url($confirmation_url): static
+    public function confirmationUrl($confirmation_url): static
     {
         $this->confirmation_url = $confirmation_url;
         return $this;
     }
-    public function validation_url($validation_url): static
+    public function validationUrl($validation_url): static
     {
         $this->validation_url = $validation_url;
         return $this;
     }
 
-    public function response_type($response_type): static
+    public function responseType($response_type): static
     {
         $this->response_type = $response_type;
         return $this;
@@ -51,11 +51,11 @@ class CustomerToBusiness extends \Kemboielvis\MpesaSdkPhp\Mpesa
 
     public function simulate($business_code = "", $command_id = "", $amount = "", $phone_number = "", $bill_ref_number = ""): static
     {
-        if ($business_code != "") $this->business_code($business_code);
-        if ($command_id != "") $this->command_id($command_id);
+        if ($business_code != "") $this->businessCode($business_code);
+        if ($command_id != "") $this->commandId($command_id);
         if ($amount != "") $this->amount($amount);
-        if ($phone_number != "") $this->phone_number($phone_number);
-        if ($bill_ref_number != "") $this->bill_ref_number($bill_ref_number);
+        if ($phone_number != "") $this->phoneNumber($phone_number);
+        if ($bill_ref_number != "") $this->billRefNumber($bill_ref_number);
         $array_data = [
             "ShortCode" =>  $this->business_code,
             "CommandID" => $this->command_id,
@@ -68,13 +68,13 @@ class CustomerToBusiness extends \Kemboielvis\MpesaSdkPhp\Mpesa
         return $this;
     }
 
-    public function command_id($command_id): static
+    public function commandId($command_id): static
     {
         $this->command_id = $command_id;
         return $this;
     }
 
-    public function bill_ref_number($bill_ref_number): static
+    public function billRefNumber($bill_ref_number): static
     {
         $this->bill_ref_number = $bill_ref_number;
         return $this;

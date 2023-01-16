@@ -18,12 +18,12 @@ class TransactionStatus extends \Kemboielvis\MpesaSdkPhp\Mpesa
         return $this;
     }
 
-    public function transaction_id($transaction_id): static
+    public function transactionId($transaction_id): static
     {
         $this->transaction_id = $transaction_id;
         return $this;
     }
-    public function identifier_type($identifier_type): static
+    public function identifierType($identifier_type): static
     {
         $this->identifier_type = $identifier_type;
         return $this;
@@ -45,17 +45,17 @@ class TransactionStatus extends \Kemboielvis\MpesaSdkPhp\Mpesa
         $this->consumer_secret = $consumer_secret;
     }
 
-    public function check_transaction_status($initiator = null, $initiator_password= null, $remarks = null, $partyA = null, $transaction_id = null, $identifier_type = null, $queue_timeout_url = null, $result_url = null, $occasion = null): static
+    public function checkTransactionStatus($initiator = null, $initiator_password= null, $remarks = null, $partyA = null, $transaction_id = null, $identifier_type = null, $queue_timeout_url = null, $result_url = null, $occasion = null): static
     {
         if ($initiator != null) $this->initiator($initiator);
         if ($remarks != null) $this->remarks($remarks);
-        if ($partyA != null) $this->business_code($partyA);
-        if ($transaction_id != null) $this->transaction_id($transaction_id);
-        if ($identifier_type != null) $this->identifier_type($identifier_type);
-        if ($queue_timeout_url != null) $this->queue_timeout_url($queue_timeout_url);
-        if ($result_url != null) $this->result_url($result_url);
+        if ($partyA != null) $this->businessCode($partyA);
+        if ($transaction_id != null) $this->transactionId($transaction_id);
+        if ($identifier_type != null) $this->identifierType($identifier_type);
+        if ($queue_timeout_url != null) $this->queueTimeoutUrl($queue_timeout_url);
+        if ($result_url != null) $this->resultUrl($result_url);
         if ($occasion != null) $this->occasion($occasion);
-        if ($initiator_password != null) $this->security_credential($initiator_password);
+        if ($initiator_password != null) $this->securityCredential($initiator_password);
 
        $array_data = [
            "Initiator" => $this->initiator,

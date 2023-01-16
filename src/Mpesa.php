@@ -36,10 +36,10 @@ class Mpesa
 //
 //    }
 
-    public function set_credentials($consumer_key = null, $consumer_secret = null): static
+    public function setCredentials($consumer_key = null, $consumer_secret = null): static
     {
-        if ($consumer_key != null) $this->consumer_key($consumer_key);
-        if ($consumer_secret != null) $this->consumer_secret($consumer_secret);
+        if ($consumer_key != null) $this->consumerKey($consumer_key);
+        if ($consumer_secret != null) $this->consumerSecret($consumer_secret);
         return $this;
     }
 
@@ -52,7 +52,7 @@ class Mpesa
     {
         return base64_encode($this->business_code.$this->pass_key.$this->timestamp());
     }
-    public function business_code(string $business_code): static
+    public function businessCode(string $business_code): static
     {
         $this->business_code = $business_code;
         return $this;
@@ -64,7 +64,7 @@ class Mpesa
         return $this;
     }
 
-    public function phone_number(string $phone): static
+    public function phoneNumber(string $phone): static
     {
 //        if($phone[0] == "+") $phone = substr($phone, 1);
 //        if($phone[0] == "0") $phone = substr($phone, 1);
@@ -73,19 +73,19 @@ class Mpesa
         $this->phone_number = $phone;
         return $this;
     }
-    public function consumer_key(string $consumer_key): static
+    public function consumerKey(string $consumer_key): static
     {
         $this->consumer_key = $consumer_key;
         return $this;
     }
 
-    public function consumer_secret(string $consumer_secret): static
+    public function consumerSecret(string $consumer_secret): static
     {
         $this->consumer_secret = $consumer_secret;
         return $this;
     }
 
-    public function pass_key(string $pass_key): static
+    public function passKey(string $pass_key): static
     {
         $this->pass_key = $pass_key;
         return $this;
@@ -94,7 +94,7 @@ class Mpesa
     public function response(){
         return $this->response;
     }
-    public function security_credential($initiator_password): static
+    public function securityCredential($initiator_password): static
     {
         $method = "aes-256-cbc";
         $password = "mypassword";
@@ -104,18 +104,18 @@ class Mpesa
         return $this;
     }
 
-    public function result_url($result_url): static
+    public function resultUrl($result_url): static
     {
         $this->result_url = $result_url;
         return $this;
     }
-    public function queue_timeout_url($timeout_url): static
+    public function queueTimeoutUrl($timeout_url): static
     {
         $this->queue_timeout_url = $timeout_url;
         return $this;
     }
 
-    public function authentication_token(){
+    public function authenticationToken(){
         $curl_transfer = curl_init();
         curl_setopt($curl_transfer, CURLOPT_URL, $this->token_url);
         $credentials = base64_encode($this->consumer_key.":".$this->consumer_secret);
@@ -131,7 +131,7 @@ class Mpesa
 
     public function curls(array $data, $url){
         $curl_transfer = curl_init($url);
-        curl_setopt($curl_transfer, CURLOPT_HTTPHEADER, ["Content-Type: application/json", "Authorization: Bearer ".$this->authentication_token()]);
+        curl_setopt($curl_transfer, CURLOPT_HTTPHEADER, ["Content-Type: application/json", "Authorization: Bearer ".$this->authenticationToken()]);
 
         curl_setopt($curl_transfer, CURLOPT_POST, true);
         curl_setopt($curl_transfer, CURLOPT_POSTFIELDS, json_encode($data));
@@ -151,26 +151,26 @@ class Mpesa
             "transaction_type" => $this->transaction_type,
             "amount" => $this->amount,
             "phone_number" => $this->phone_number,
-            "call_back_url" => "https://mydomain.com/path"
+            "call_back_url" => $this->call_back_url
         ]);
     }
 
-    public function customer_to_business(): CustomerToBusiness
+    public function customerToBusiness(): CustomerToBusiness
     {
         return new CustomerToBusiness($this->consumer_key, $this->consumer_secret);
     }
 
-    public function business_to_customer(): BusinessToCustomer
+    public function businessToCustomer(): BusinessToCustomer
     {
         return new BusinessToCustomer($this->consumer_key, $this->consumer_secret);
     }
 
-    public function check_balance(): AccountBalance
+    public function checkBalance(): AccountBalance
     {
         return new AccountBalance($this->consumer_key, $this->consumer_secret);
     }
 
-    public function transaction_status(): TransactionStatus
+    public function transactionStatus(): TransactionStatus
     {
         return new TransactionStatus($this->consumer_key, $this->consumer_secret);
     }

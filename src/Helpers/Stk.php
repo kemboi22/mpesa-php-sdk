@@ -68,24 +68,20 @@ class Stk extends Mpesa
     }
 
 
-    public function pass_key(string $pass_key): static
-    {
-        $this->pass_key = $pass_key;
-        return $this;
-    }
-    public function transaction_type(string $transaction_type): static
+
+    public function transactionType(string $transaction_type): static
     {
         $this->transaction_type = $transaction_type;
         return $this;
     }
 
 
-    public function call_back_url($url): static
+    public function callBackUrl($url): static
     {
         $this->call_back_url = $url;
         return $this;
     }
-    public function checkout_id(){
+    public function checkoutId(){
         return $this->response->CheckoutRequestID;
     }
 
@@ -96,7 +92,7 @@ class Stk extends Mpesa
             "BusinessShortCode" => $this->business_code,
             "Password" => $this->password(),
             "Timestamp" => $this->timestamp(),
-            "CheckoutRequestID" => $this->checkout_id()
+            "CheckoutRequestID" => $this->checkoutId()
         ];
         return $this->curls($array_data, "https://sandbox.safaricom.co.ke/mpesa/stkpushquery/v1/query");
     }

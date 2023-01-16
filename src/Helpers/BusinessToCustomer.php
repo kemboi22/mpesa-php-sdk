@@ -10,14 +10,14 @@ class BusinessToCustomer extends \Kemboielvis\MpesaSdkPhp\Mpesa
     private string $occasion = "";
 
 
-    public function initiator_name($initiator_name): static
+    public function initiatorName($initiator_name): static
     {
         $this->initiator_name = $initiator_name;
         return $this;
     }
 
 
-    public function command_id($command_id): static
+    public function commandId($command_id): static
     {
         $this->command_id = $command_id;
         return $this;
@@ -41,18 +41,18 @@ class BusinessToCustomer extends \Kemboielvis\MpesaSdkPhp\Mpesa
     }
 
 
-    public function payment_request($initiator_name = null, $initiator_password = null, $command_id = null, $amount = null, $partyA = null, $phone_number = null, $remarks = null, $queue_timeout_url = null, $result_url = null, $occasion = null): static
+    public function paymentRequest($initiator_name = null, $initiator_password = null, $command_id = null, $amount = null, $partyA = null, $phone_number = null, $remarks = null, $queue_timeout_url = null, $result_url = null, $occasion = null): static
     {
-        if ($initiator_name != null) $this->initiator_name($initiator_name);
-        if ($command_id != null) $this->command_id($command_id);
+        if ($initiator_name != null) $this->initiatorName($initiator_name);
+        if ($command_id != null) $this->commandId($command_id);
         if ($amount != null) $this->amount($amount);
-        if ($partyA != null) $this->business_code($partyA);
-        if ($phone_number != null) $this->phone_number($phone_number);
+        if ($partyA != null) $this->businessCode($partyA);
+        if ($phone_number != null) $this->phoneNumber($phone_number);
         if ($remarks != null) $this->remarks($remarks);
-        if ($queue_timeout_url != null) $this->queue_timeout_url($queue_timeout_url);
-        if ($result_url != null) $this->result_url($result_url);
+        if ($queue_timeout_url != null) $this->queueTimeoutUrl($queue_timeout_url);
+        if ($result_url != null) $this->resultUrl($result_url);
         if ($occasion != null) $this->occasion($occasion);
-        if ($initiator_password != null) $this->security_credential($initiator_password);
+        if ($initiator_password != null) $this->securityCredential($initiator_password);
         $array_data = [
             "InitiatorName" => $this->initiator_name,
             "SecurityCredential" => $this->security_credential,
