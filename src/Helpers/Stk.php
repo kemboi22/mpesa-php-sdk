@@ -63,7 +63,7 @@ class Stk extends Mpesa
             "TransactionDesc" => "Payment of X"
 
         ];
-        $this->response = $this->curls($array_data, $this->stk_push_url);
+        $this->response = $this->curls($array_data, "/mpesa/stkpush/v1/processrequest");
         return $this;
     }
 
@@ -86,7 +86,7 @@ class Stk extends Mpesa
     }
 
 
-    public function Query()
+    public function query()
     {
         $array_data = [
             "BusinessShortCode" => $this->business_code,

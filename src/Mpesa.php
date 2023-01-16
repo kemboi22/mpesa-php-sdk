@@ -17,12 +17,12 @@ class Mpesa
     public  string $business_code = "";
     public string $pass_key = "";
     public string $transaction_type = "";
-    public string $token_url = "https://sandbox.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials";
+    public string $token_url = "/oauth/v1/generate?grant_type=client_credentials";
     public string $phone_number = "";
 
     public string $amount = "";
-    public string $call_back_url = "https://mydomain.com/path";
-    public string $stk_push_url = "https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest";
+    public string $call_back_url = "";
+
     public string $security_credential = "";
 
     public object $response;
@@ -129,7 +129,7 @@ class Mpesa
 
     public function authenticationToken(){
         $curl_transfer = curl_init();
-        curl_setopt($curl_transfer, CURLOPT_URL, $this->token_url);
+        curl_setopt($curl_transfer, CURLOPT_URL, $this->baseUrl.$this->token_url);
         $credentials = base64_encode($this->consumer_key.":".$this->consumer_secret);
         curl_setopt($curl_transfer, CURLOPT_HTTPHEADER, array('Authorization: Basic '.$credentials));
         curl_setopt($curl_transfer, CURLOPT_HEADER, false);
