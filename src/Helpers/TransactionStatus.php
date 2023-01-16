@@ -12,6 +12,7 @@ class TransactionStatus extends \Kemboielvis\MpesaSdkPhp\Mpesa
     private string $remarks = "";
     private string $occasion = "";
 
+
     public function initiator($initiator): static
     {
         $this->initiator = $initiator;
@@ -69,7 +70,7 @@ class TransactionStatus extends \Kemboielvis\MpesaSdkPhp\Mpesa
             "Remarks" => $this->remarks,
             "Occassion" => $this->occasion,
        ];
-       $this->response = $this->curls($array_data, "https://sandbox.safaricom.co.ke/mpesa/transactionstatus/v1/query");
+       $this->response = $this->curls($array_data, "/mpesa/transactionstatus/v1/query");
        return $this;
     }
 

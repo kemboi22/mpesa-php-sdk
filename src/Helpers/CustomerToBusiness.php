@@ -21,7 +21,7 @@ class CustomerToBusiness extends \Kemboielvis\MpesaSdkPhp\Mpesa
             "ConfirmationURL" => $this->confirmation_url,
             "ValidationURL" => $this->validation_url
         ];
-        $this->response = $this->curls($array_data, "https://sandbox.safaricom.co.ke/mpesa/c2b/v1/registerurl");
+        $this->response = $this->curls($array_data, "/mpesa/c2b/v1/registerurl");
         return $this;
 
     }
@@ -64,7 +64,7 @@ class CustomerToBusiness extends \Kemboielvis\MpesaSdkPhp\Mpesa
             "BillRefNumber" => $this->bill_ref_number,
         ];
         print_r($array_data);
-        $this->response = $this->curls($array_data, "https://sandbox.safaricom.co.ke/mpesa/c2b/v1/simulate");
+        $this->response = $this->curls($array_data, "/mpesa/c2b/v1/simulate");
         return $this;
     }
 

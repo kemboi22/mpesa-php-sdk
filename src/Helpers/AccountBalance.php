@@ -48,7 +48,7 @@ class AccountBalance extends \Kemboielvis\MpesaSdkPhp\Mpesa
             "QueueTimeOutURL" => $this->queue_timeout_url,
             "ResultURL" => $this->result_url,
         ];
-        $this->response = $this->curls($array_data, "https://sandbox.safaricom.co.ke/mpesa/accountbalance/v1/query");
+        $this->response = $this->curls($array_data, "/mpesa/accountbalance/v1/query");
         return $this;
     }
 

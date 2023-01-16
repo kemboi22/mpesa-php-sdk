@@ -94,7 +94,7 @@ class Stk extends Mpesa
             "Timestamp" => $this->timestamp(),
             "CheckoutRequestID" => $this->checkoutId()
         ];
-        return $this->curls($array_data, "https://sandbox.safaricom.co.ke/mpesa/stkpushquery/v1/query");
+        return $this->curls($array_data, "/mpesa/stkpushquery/v1/query");
     }
 
 }

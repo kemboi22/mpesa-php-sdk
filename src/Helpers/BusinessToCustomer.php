@@ -65,7 +65,7 @@ class BusinessToCustomer extends \Kemboielvis\MpesaSdkPhp\Mpesa
             "ResultURL" => $this->result_url,
             "Occassion" => $this->occasion,
         ];
-        $this->response = $this->curls($array_data, "https://sandbox.safaricom.co.ke/mpesa/b2c/v1/paymentrequest");
+        $this->response = $this->curls($array_data, "/mpesa/b2c/v1/paymentrequest");
         return $this;
     }
 

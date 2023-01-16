@@ -29,6 +29,10 @@ class Mpesa
     public string $queue_timeout_url = "";
     public string $result_url = "";
 
+    private string $baseUrl = "";
+
+    private string $env = "";
+
 //    public function __construct($key = null, $secret = null)
 //    {
 //        $this->set_credentials();
@@ -36,10 +40,12 @@ class Mpesa
 //
 //    }
 
-    public function setCredentials($consumer_key = null, $consumer_secret = null): static
+    public function setCredentials($consumer_key = null, $consumer_secret = null, $env = null): static
     {
         if ($consumer_key != null) $this->consumerKey($consumer_key);
         if ($consumer_secret != null) $this->consumerSecret($consumer_secret);
+        if($env != null) $this->env($env);
+        $this->baseUrl = (strtolower($this->env) == "live") ? "https://api.safaricom.co.ke" : "https://sandbox.safaricom.co.ke";
         return $this;
     }
 
@@ -55,6 +61,12 @@ class Mpesa
     public function businessCode(string $business_code): static
     {
         $this->business_code = $business_code;
+        return $this;
+    }
+
+    public function env($env): static
+    {
+        $this->env = $env;
         return $this;
     }
 
@@ -130,9 +142,8 @@ class Mpesa
     }
 
     public function curls(array $data, $url){
-        $curl_transfer = curl_init($url);
+        $curl_transfer = curl_init($this->baseUrl.$url);
         curl_setopt($curl_transfer, CURLOPT_HTTPHEADER, ["Content-Type: application/json", "Authorization: Bearer ".$this->authenticationToken()]);
-
         curl_setopt($curl_transfer, CURLOPT_POST, true);
         curl_setopt($curl_transfer, CURLOPT_POSTFIELDS, json_encode($data));
         curl_setopt($curl_transfer, CURLOPT_RETURNTRANSFER, true);

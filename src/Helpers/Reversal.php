@@ -66,7 +66,7 @@ class Reversal extends \Kemboielvis\MpesaSdkPhp\Mpesa
             "Remarks" => $this->remarks,
             "Occassion" => $this->occasion,
         ];
-        $this->response = $this->curls($array_data, "https://sandbox.safaricom.co.ke/mpesa/reversal/v1/request");
+        $this->response = $this->curls($array_data, "/mpesa/reversal/v1/request");
         return $this;
     }
 
