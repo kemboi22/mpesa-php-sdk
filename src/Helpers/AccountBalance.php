@@ -23,10 +23,11 @@ class AccountBalance extends \Kemboielvis\MpesaSdkPhp\Mpesa
         $this->remarks = $remarks;
         return $this;
     }
-    public function __construct($consumer_key, $consumer_secret)
+    public function __construct($consumer_key, $consumer_secret, $baseUrl)
     {
         $this->consumer_key = $consumer_key;
         $this->consumer_secret = $consumer_secret;
+        $this->baseUrl = $baseUrl;
     }
 
     public function accountBalance($initiator = null, $initiator_password = null, $partyA = null, $identifier_type = null, $remarks = null, $queue_url = null, $result_url = null): static

@@ -26,6 +26,7 @@ class Stk extends Mpesa
                             $this->amount = $data["amount"];
                             $this->phone_number = (int)$data["phone_number"];
                             $this->call_back_url = $data["call_back_url"];
+                            $this->baseUrl = $data["base_url"];
                             return $this;
 
                         }else{

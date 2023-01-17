@@ -36,10 +36,11 @@ class Reversal extends \Kemboielvis\MpesaSdkPhp\Mpesa
         $this->occasion = $occasion;
         return $this;
     }
-    public function __construct($consumer_key, $consumer_secret)
+    public function __construct($consumer_key, $consumer_secret, $baseUrl)
     {
         $this->consumer_key = $consumer_key;
         $this->consumer_secret = $consumer_secret;
+        $this->baseUrl = $baseUrl;
     }
 
     public function reverse($initiator = null, $initiator_password= null, $remarks = null, $receiver_party = null, $transaction_id = null, $receiver_identifier_type = null, $queue_timeout_url = null, $result_url = null, $occasion = null): static

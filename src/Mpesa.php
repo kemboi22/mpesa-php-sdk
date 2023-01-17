@@ -29,7 +29,7 @@ class Mpesa
     public string $queue_timeout_url = "";
     public string $result_url = "";
 
-    private string $baseUrl = "";
+    public string $baseUrl = "";
 
     private string $env = "";
 
@@ -158,6 +158,7 @@ class Mpesa
         return new Stk([
             "consumer_key" => $this->consumer_key,
             "consumer_secret" => $this->consumer_secret,
+            "base_url" => $this->baseUrl,
             "business_code" => $this->business_code,
             "transaction_type" => $this->transaction_type,
             "amount" => $this->amount,
@@ -168,27 +169,27 @@ class Mpesa
 
     public function customerToBusiness(): CustomerToBusiness
     {
-        return new CustomerToBusiness($this->consumer_key, $this->consumer_secret);
+        return new CustomerToBusiness($this->consumer_key, $this->consumer_secret, $this->baseUrl);
     }
 
     public function businessToCustomer(): BusinessToCustomer
     {
-        return new BusinessToCustomer($this->consumer_key, $this->consumer_secret);
+        return new BusinessToCustomer($this->consumer_key, $this->consumer_secret, $this->baseUrl);
     }
 
     public function checkBalance(): AccountBalance
     {
-        return new AccountBalance($this->consumer_key, $this->consumer_secret);
+        return new AccountBalance($this->consumer_key, $this->consumer_secret, $this->baseUrl);
     }
 
     public function transactionStatus(): TransactionStatus
     {
-        return new TransactionStatus($this->consumer_key, $this->consumer_secret);
+        return new TransactionStatus($this->consumer_key, $this->consumer_secret, $this->baseUrl);
     }
 
     public function reversal(): Reversal
     {
-        return new Reversal($this->consumer_key, $this->consumer_secret);
+        return new Reversal($this->consumer_key, $this->consumer_secret, $this->baseUrl);
     }
 
 }

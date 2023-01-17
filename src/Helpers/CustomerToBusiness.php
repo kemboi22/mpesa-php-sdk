@@ -43,10 +43,11 @@ class CustomerToBusiness extends \Kemboielvis\MpesaSdkPhp\Mpesa
         return $this;
     }
 
-    public function __construct($consumer_key, $consumer_secret)
+    public function __construct($consumer_key, $consumer_secret, $baseUrl)
     {
         $this->consumer_key = $consumer_key;
         $this->consumer_secret = $consumer_secret;
+        $this->baseUrl = $baseUrl;
     }
 
     public function simulate($business_code = "", $command_id = "", $amount = "", $phone_number = "", $bill_ref_number = ""): static
