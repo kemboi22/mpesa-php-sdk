@@ -6,6 +6,10 @@ Basic Usage:
 
 use composer to install the sdk and import autoload file in vendor 
 
+```
+composer require kemboielvis/mpesa-sdk-php
+```
+
 1. Initialize mpesa sdk with consumer key and consumer secret from https://developer.safaricom.co.ke/
   
 
