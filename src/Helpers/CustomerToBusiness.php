@@ -64,7 +64,6 @@ class CustomerToBusiness extends \Kemboielvis\MpesaSdkPhp\Mpesa
             "Msisdn" => $this->phone_number,
             "BillRefNumber" => $this->bill_ref_number,
         ];
-        print_r($array_data);
         $this->response = $this->curls($array_data, "/mpesa/c2b/v1/simulate");
         return $this;
     }

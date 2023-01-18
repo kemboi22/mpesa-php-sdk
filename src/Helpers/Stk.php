@@ -10,7 +10,9 @@ class Stk extends Mpesa
     {
         $this->configure($data);
     }
+    private string $account_reference = "";
 
+    private string  $transaction_desc = "";
     public function configure(array $data)
     {
 
@@ -60,8 +62,8 @@ class Stk extends Mpesa
             "PartyB" => $this->business_code,
             "PhoneNumber" => $this->phone_number,
             "CallBackURL" => $this->call_back_url,
-            "AccountReference" => "CompanyXLTD",
-            "TransactionDesc" => "Payment of X"
+            "AccountReference" => $this->account_reference,
+            "TransactionDesc" => $this->transaction_desc
 
         ];
         $this->response = $this->curls($array_data, "/mpesa/stkpush/v1/processrequest");
@@ -73,6 +75,18 @@ class Stk extends Mpesa
     public function transactionType(string $transaction_type): static
     {
         $this->transaction_type = $transaction_type;
+        return $this;
+    }
+
+    public function  accountReference($account_reference): static
+    {
+        $this->account_reference = $account_reference;
+        return $this;
+    }
+
+    public function transactionDesc($transaction_desc):static
+    {
+        $this->transaction_desc = $transaction_desc;
         return $this;
     }
 
