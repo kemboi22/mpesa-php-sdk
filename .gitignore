@@ -1,1 +1,4 @@
 /vendor
+.php-cs-fixer.php
+.php-cs-fixer.cache
+.phpcs.xml.dist
