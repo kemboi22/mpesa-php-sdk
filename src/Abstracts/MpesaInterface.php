@@ -14,6 +14,6 @@ interface MpesaInterface
      * @param string $endpoint The API endpoint
      * @return mixed The API response
      */
-    public function executeRequest(array $data, string $endpoint);
+    public function executeRequest(array $data, string $endpoint): mixed;
 }
 

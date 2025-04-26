@@ -24,7 +24,7 @@ class ApiClient implements MpesaInterface
      * @return object The API response
      * @throws \RuntimeException If the request fails
      */
-    public function executeRequest(array $data, string $endpoint)
+    public function executeRequest(array $data, string $endpoint): object
     {
         $token = $this->tokenManager->getToken();
 
@@ -58,9 +58,7 @@ class ApiClient implements MpesaInterface
 
         // Check for API errors
         if ($httpCode >= 400) {
-            $errorMessage = isset($responseData->errorMessage)
-                ? $responseData->errorMessage
-                : 'Unknown error occurred';
+            $errorMessage = $responseData->errorMessage ?? 'Unknown error occurred';
 
             throw new \RuntimeException("API error ($httpCode): $errorMessage");
         }
@@ -75,7 +73,7 @@ class ApiClient implements MpesaInterface
      * @param string $endpoint The API endpoint
      * @return object The API response
      */
-    private function retryRequest(array $data, string $endpoint)
+    private function retryRequest(array $data, string $endpoint): object
     {
         $token = $this->tokenManager->getToken();
 
