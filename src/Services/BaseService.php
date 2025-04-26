@@ -43,35 +43,3 @@ abstract class BaseService
         );
     }
 }
-
-/**
- * Business to Customer service
- */
-class BusinessToCustomerService extends AbstractService
-{
-    // Implementation details would go here
-}
-
-/**
- * Account Balance service
- */
-class AccountBalanceService extends AbstractService
-{
-    // Implementation details would go here
-}
-
-/**
- * Transaction Status service
- */
-class TransactionStatusService extends AbstractService
-{
-    // Implementation details would go here
-}
-
-/**
- * Reversal service
- */
-class ReversalService extends AbstractService
-{
-    // Implementation details would go here
-}
