@@ -11,6 +11,8 @@ class BusinessToCustomerService extends AbstractService
     private string $command_id = "";
     private string $remarks = "";
     private string $occasion = "";
+    private int $amount;
+    private string $phone_number;
 
     /**
      * Sets the username of the M-Pesa API operator.
@@ -110,27 +112,57 @@ class BusinessToCustomerService extends AbstractService
         if ($initiator_name !== null) $this->setInitiatorName($initiator_name);
         if ($command_id !== null) $this->setCommandId($command_id);
         if ($amount !== null) $this->setAmount($amount);
-        if ($partyA !== null) $this->setBusinessCode($partyA);
+        if ($partyA !== null) $this->config->setBusinessCode($partyA);
         if ($phone_number !== null) $this->setPhoneNumber($phone_number);
         if ($remarks !== null) $this->setRemarks($remarks);
-        if ($queue_timeout_url !== null) $this->setQueueTimeoutUrl($queue_timeout_url);
-        if ($result_url !== null) $this->setResultUrl($result_url);
+        if ($queue_timeout_url !== null) $this->config->setQueueTimeoutUrl($queue_timeout_url);
+        if ($result_url !== null) $this->config->setResultUrl($result_url);
         if ($occasion !== null) $this->setOccasion($occasion);
-        if ($initiator_password !== null) $this->setSecurityCredential($initiator_password);
+        if ($initiator_password !== null) $this->config->setSecurityCredential($initiator_password);
 
         $requestData = [
             "InitiatorName" => $this->initiator_name,
-            "SecurityCredential" => $this->security_credential,
+            "SecurityCredential" => $this->config->getSecurityCredential(),
             "CommandID" => $this->command_id,
             "Amount" => (int)$this->amount,
-            "PartyA" => $this->business_code,
+            "PartyA" => $this->config->getBusinessCode(),
             "PartyB" => $this->phone_number,
             "Remarks" => $this->remarks,
-            "QueueTimeOutURL" => $this->queue_timeout_url,
-            "ResultURL" => $this->result_url,
+            "QueueTimeOutURL" => $this->config->getQueueTimeoutUrl(),
+            "ResultURL" => $this->config->getResultUrl(),
             "Occassion" => $this->occasion,
         ];
 
-        return $this->makeRequest($requestData, "/mpesa/b2c/v1/paymentrequest");
+        return $this->client->executeRequest($requestData, "/mpesa/b2c/v1/paymentrequest");
+    }
+
+    /**
+     * Sets the amount for the transaction.
+     *
+     * This method assigns a specified amount to the transaction.
+     * The amount is expected to be an integer value.
+     *
+     * @param int $amount The amount to be set for the transaction.
+     * @return $this
+     */
+    public function setAmount(int $amount) : self
+    {
+        $this->amount = $amount;
+        return $this;
+    }
+
+    /**
+     * Sets the phone number of the customer.
+     *
+     * This method assigns a phone number to the transaction.
+     * The phone number should be a string of digits.
+     *
+     * @param string $phone_number The phone number of the customer.
+     * @return self
+     */
+    public function setPhoneNumber(string $phone_number) : self
+    {
+        $this->phone_number = $phone_number;
+        return $this;
     }
 }

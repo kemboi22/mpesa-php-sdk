@@ -106,27 +106,27 @@ class TransactionStatusService extends AbstractService
     {
         if ($initiator !== null) $this->setInitiator($initiator);
         if ($remarks !== null) $this->setRemarks($remarks);
-        if ($partyA !== null) $this->setBusinessCode($partyA);
+        if ($partyA !== null) $this->config->setBusinessCode($partyA);
         if ($transaction_id !== null) $this->setTransactionId($transaction_id);
         if ($identifier_type !== null) $this->setIdentifierType($identifier_type);
-        if ($queue_timeout_url !== null) $this->setQueueTimeoutUrl($queue_timeout_url);
-        if ($result_url !== null) $this->setResultUrl($result_url);
+        if ($queue_timeout_url !== null) $this->config->setQueueTimeoutUrl($queue_timeout_url);
+        if ($result_url !== null) $this->config->setResultUrl($result_url);
         if ($occasion !== null) $this->setOccasion($occasion);
-        if ($initiator_password !== null) $this->setSecurityCredential($initiator_password);
+        if ($initiator_password !== null) $this->config->setSecurityCredential($initiator_password);
 
         $requestData = [
             "Initiator" => $this->initiator,
-            "SecurityCredential" => $this->security_credential,
+            "SecurityCredential" => $this->config->getSecurityCredential(),
             "CommandID" => "TransactionStatusQuery",
             "TransactionID" => $this->transaction_id,
-            "PartyA" => $this->business_code,
+            "PartyA" => $this->config->getBusinessCode(),
             "IdentifierType" => $this->identifier_type,
-            "ResultURL" => $this->result_url,
-            "QueueTimeOutURL" => $this->queue_timeout_url,
+            "ResultURL" => $this->config->getResultUrl(),
+            "QueueTimeOutURL" => $this->config->getQueueTimeoutUrl(),
             "Remarks" => $this->remarks,
             "Occassion" => $this->occasion,
         ];
 
-        return $this->makeRequest($requestData, "/mpesa/transactionstatus/v1/query");
+        return $this->client->executeRequest($requestData, "/mpesa/transactionstatus/v1/query");
     }
 }

@@ -13,6 +13,8 @@ class CustomerToBusinessService extends BaseService
     private string $commandId = '';
     private string $billRefNumber = '';
     private ?object $response = null;
+    private string $amount;
+    private string $phoneNumber;
 
     /**
      * Set the confirmation URL
@@ -168,10 +170,10 @@ class CustomerToBusinessService extends BaseService
     /**
      * Set the amount
      *
-     * @param string|int $amount The amount
+     * @param int|string $amount The amount
      * @return self
      */
-    public function setAmount($amount): self
+    public function setAmount(int|string $amount): self
     {
         $this->amount = (string)$amount;
         return $this;

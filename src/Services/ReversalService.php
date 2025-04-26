@@ -112,27 +112,27 @@ class ReversalService extends AbstractService
     {
         if ($initiator !== null) $this->setInitiator($initiator);
         if ($remarks !== null) $this->setRemarks($remarks);
-        if ($receiver_party !== null) $this->setBusinessCode($receiver_party);
+        if ($receiver_party !== null) $this->config->setBusinessCode($receiver_party);
         if ($transaction_id !== null) $this->setTransactionId($transaction_id);
         if ($receiver_identifier_type !== null) $this->setReceiverIdentifierType($receiver_identifier_type);
-        if ($queue_timeout_url !== null) $this->setQueueTimeoutUrl($queue_timeout_url);
-        if ($result_url !== null) $this->setResultUrl($result_url);
+        if ($queue_timeout_url !== null) $this->config->setQueueTimeoutUrl($queue_timeout_url);
+        if ($result_url !== null) $this->config->setResultUrl($result_url);
         if ($occasion !== null) $this->setOccasion($occasion);
-        if ($initiator_password !== null) $this->setSecurityCredential($initiator_password);
+        if ($initiator_password !== null) $this->config->setSecurityCredential($initiator_password);
 
         $requestData = [
             "Initiator" => $this->initiator,
-            "SecurityCredential" => $this->security_credential,
+            "SecurityCredential" => $this->config->getSecurityCredential(),
             "CommandID" => "TransactionReversal",
             "TransactionID" => $this->transaction_id,
-            "ReceiverParty" => $this->business_code,
+            "ReceiverParty" => $this->config->getBusinessCode(),
             "ReceiverIdentifierType" => $this->receiver_identifier_type,
-            "ResultURL" => $this->result_url,
-            "QueueTimeOutURL" => $this->queue_timeout_url,
+            "ResultURL" => $this->config->getResultUrl(),
+            "QueueTimeOutURL" => $this->config->getQueueTimeoutUrl(),
             "Remarks" => $this->remarks,
             "Occassion" => $this->occasion,
         ];
 
-        return $this->makeRequest($requestData, "/mpesa/reversal/v1/request");
+        return $this->client->executeRequest($requestData, "/mpesa/reversal/v1/request");
     }
 }

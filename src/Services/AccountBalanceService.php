@@ -73,21 +73,21 @@ class AccountBalanceService extends AbstractService
     {
         if ($initiator !== null) $this->setInitiator($initiator);
         if ($remarks !== null) $this->setRemarks($remarks);
-        if ($partyA !== null) $this->setBusinessCode($partyA);
+        if ($partyA !== null) $this->config->setBusinessCode($partyA);
         if ($identifier_type !== null) $this->setIdentifierType($identifier_type);
-        if ($queue_url !== null) $this->setQueueTimeoutUrl($queue_url);
-        if ($result_url !== null) $this->setResultUrl($result_url);
-        if ($initiator_password !== null) $this->setSecurityCredential($initiator_password);
+        if ($queue_url !== null) $this->config->setQueueTimeoutUrl($queue_url);
+        if ($result_url !== null) $this->config->setResultUrl($result_url);
+        if ($initiator_password !== null) $this->config->setSecurityCredential($initiator_password);
 
         $requestData = [
             "Initiator" => $this->initiator,
-            "SecurityCredential" => $this->security_credential,
+            "SecurityCredential" => $this->config->getSecurityCredential(),
             "CommandID" => "AccountBalance",
-            "PartyA" => $this->business_code,
+            "PartyA" => $this->config->getBusinessCode(),
             "IdentifierType" => $this->identifier_type,
             "Remarks" => $this->remarks,
-            "QueueTimeOutURL" => $this->queue_timeout_url,
-            "ResultURL" => $this->result_url,
+            "QueueTimeOutURL" => $this->config->getQueueTimeoutUrl(),
+            "ResultURL" => $this->config->getResultUrl(),
         ];
 
         return $this->makeRequest($requestData, "/mpesa/accountbalance/v1/query");

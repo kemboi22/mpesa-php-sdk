@@ -8,6 +8,7 @@ class Stk extends Mpesa
 {
     public function __construct($data)
     {
+        parent::__construct();
         $this->configure($data);
     }
     private string $account_reference = '';
