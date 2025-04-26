@@ -11,10 +11,12 @@ class ApiClient
     private $token_cache_file;
 
     /**
-     * @param mixed $baseUrl
-     * @param mixed $token_url
-     * @param mixed $consumer_key
-     * @param mixed $consumer_secret
+     * Constructor
+     *
+     * @param string $baseUrl The base URL for the M-Pesa API
+     * @param string $token_url The URL for obtaining an authentication token
+     * @param string $consumer_key The consumer key for the M-Pesa API
+     * @param string $consumer_secret The consumer secret for the M-Pesa API
      */
     public function __construct(string $baseUrl, string $token_url, string $consumer_key, string $consumer_secret)
     {
@@ -25,9 +27,17 @@ class ApiClient
         $this->token_cache_file = sys_get_temp_dir() . '/api_token_cache.json';
     }
 
+
     /**
-     * @return <missing>|null
-     * */
+     * Returns an authentication token from the M-Pesa API.
+     *
+     * Checks if there is a valid cached token before attempting to get a new one.
+     * If a cached token is found, it is returned immediately.
+     * If no valid cached token is found, a new token is obtained from the M-Pesa API
+     * and the response is cached for future requests.
+     *
+     * @return string|null The authentication token, or null if no valid token could be obtained
+     */
     public function authenticationToken()
     {
         // Check if we have a cached token
@@ -64,8 +74,15 @@ class ApiClient
         return null;
     }
 
+
     /**
-     * @return null|<missing>
+     * Retrieves a cached authentication token if it exists and is still valid.
+     *
+     * This method checks for the existence of a cached token file and ensures
+     * the token within is not expired. If the file does not exist or the token
+     * is expired, null is returned.
+     *
+     * @return string|null The cached token if valid, or null if no valid cached token is available.
      */
     private function getCachedToken()
     {
@@ -83,6 +100,17 @@ class ApiClient
         return $cache_data['token'];
     }
 
+    /**
+     * Caches the authentication token with its expiration time.
+     *
+     * This method stores the provided token in a cache file along with its
+     * expiration timestamp and creation time. The token is saved in a JSON
+     * format for later retrieval.
+     *
+     * @param string $token The authentication token to be cached.
+     * @param int $expires_in The number of seconds until the token expires.
+     * @return void
+     */
     private function cacheToken(string $token, $expires_in): void
     {
         $cache_data = [
@@ -94,8 +122,18 @@ class ApiClient
         file_put_contents($this->token_cache_file, json_encode($cache_data));
     }
 
+
     /**
-     * @return mixed@param array<int,mixed> $data
+     * Executes a cURL request to the specified URL with the provided data.
+     *
+     * This method initializes a cURL session and sends a POST request to the
+     * given URL, using the provided data as JSON payload. It includes an
+     * authorization header with a bearer token. If the request is unauthorized,
+     * it clears the token cache and retries the request once.
+     *
+     * @param array<int,mixed> $data The data to be sent in the POST request.
+     * @param string $url The endpoint URL for the cURL request.
+     * @return mixed The decoded JSON response from the server.
      */
     public function curls(array $data, string $url)
     {
@@ -123,6 +161,14 @@ class ApiClient
         return json_decode($response);
     }
 
+    /**
+     * Clears the authentication token cache.
+     *
+     * If the token cache file exists, this method deletes it, effectively
+     * invalidating the current authentication token. This is typically used
+     * when the API returns an unauthorized response, indicating that the
+     * current token is no longer valid.
+     */
     private function clearTokenCache(): void
     {
         if (file_exists($this->token_cache_file)) {
@@ -130,8 +176,18 @@ class ApiClient
         }
     }
 
+
     /**
-     * @param array<int,mixed> $data
+     * Handles an unauthorized response by getting a fresh token and retrying the request.
+     *
+     * If the API returns an unauthorized response, this method is called to handle it.
+     * It clears the token cache, gets a fresh token using {@see authenticationToken},
+     * and retries the original request.
+     *
+     * @param array $data The original request data.
+     * @param string $url The original request URL.
+     *
+     * @return mixed The response from the retried request.
      */
     private function handleUnauthorized(array $data, string $url)
     {
