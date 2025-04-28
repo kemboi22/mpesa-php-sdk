@@ -2,195 +2,135 @@
 
 namespace Kemboielvis\MpesaSdkPhp;
 
-use Kemboielvis\MpesaSdkPhp\Helpers\AccountBalance;
-use Kemboielvis\MpesaSdkPhp\Helpers\BusinessToCustomer;
-use Kemboielvis\MpesaSdkPhp\Helpers\CustomerToBusiness;
-use Kemboielvis\MpesaSdkPhp\Helpers\Reversal;
-use Kemboielvis\MpesaSdkPhp\Helpers\Stk;
-use Kemboielvis\MpesaSdkPhp\Helpers\TransactionStatus;
-use Kemboielvis\MpesaSdkPhp\Http\ApiClient;
+use Kemboielvis\MpesaSdkPhp\Abstracts\ApiClient;
+use Kemboielvis\MpesaSdkPhp\Abstracts\MpesaConfig;
+use Kemboielvis\MpesaSdkPhp\Abstracts\MpesaInterface;
+use Kemboielvis\MpesaSdkPhp\Services\AccountBalanceService;
+use Kemboielvis\MpesaSdkPhp\Services\BusinessToCustomerService;
+use Kemboielvis\MpesaSdkPhp\Services\CustomerToBusinessService;
+use Kemboielvis\MpesaSdkPhp\Services\ReversalService;
+use Kemboielvis\MpesaSdkPhp\Services\StkService;
+use Kemboielvis\MpesaSdkPhp\Services\TransactionStatusService;
 
+/**
+ * Main M-Pesa SDK class
+ */
 class Mpesa
 {
-    protected string $consumer_key = '';
-    protected string $consumer_secret = '';
-    protected string $business_code = '';
-    protected string $pass_key = '';
-    protected string $transaction_type = '';
-    private string $token_url = '/oauth/v1/generate?grant_type=client_credentials';
-    protected string $phone_number = '';
+    private MpesaConfig $config;
+    private MpesaInterface $client;
 
-    protected string $amount = '';
-    protected string $call_back_url = '';
-
-    protected string $security_credential = '';
-
-    protected object $response;
-    protected string $queue_timeout_url = '';
-    protected string $result_url = '';
-
-    private string $baseUrl = '';
-
-    private string $env = '';
-    private ApiClient $apiClient;
-
-    public function __construct(?string $key = null, ?string $secret = null, ?string $env = null)
-    {
-        $this->setCredentials($key, $secret, $env);
-        $this->apiClient = new ApiClient($this->baseUrl, $this->token_url, $key, $secret);
+    /**
+     * Create a new Mpesa instance
+     *
+     * @param string|null $consumerKey The consumer key
+     * @param string|null $consumerSecret The consumer secret
+     * @param string $environment The environment (live or sandbox)
+     */
+    public function __construct(
+        string $consumerKey = null,
+        string $consumerSecret = null,
+        string $environment = 'sandbox'
+    ) {
+        $this->config = new MpesaConfig($consumerKey, $consumerSecret, $environment);
+        $this->client = new ApiClient($this->config);
     }
 
-    public function setCredentials(?string $consumer_key = null, ?string $consumer_secret = null, ?string $env = null): Mpesa
-    {
-        if (null != $consumer_key) {
-            $this->consumerKey($consumer_key);
-        }
-        if (null != $consumer_secret) {
-            $this->consumerSecret($consumer_secret);
-        }
-        if (null != $env) {
-            $this->env($env);
-        }
-        $this->baseUrl = ('live' == strtolower($this->env)) ? 'https://api.safaricom.co.ke' : 'https://sandbox.safaricom.co.ke';
-
-        $this->apiClient = new ApiClient($this->baseUrl, $this->token_url, $this->consumer_key, $this->consumer_secret);
-
-        return $this;
-    }
-
-    public function timestamp(): string
-    {
-        return date('YmdHis');
-    }
-
-    public function password(): string
-    {
-        return base64_encode($this->business_code . $this->pass_key . $this->timestamp());
-    }
-
-    public function businessCode(string $business_code): static
-    {
-        $this->business_code = $business_code;
-
-        return $this;
-    }
-
-    public function env(string $env): Mpesa
-    {
-        $this->env = $env;
-
-        return $this;
-    }
-
-    public function amount(int $amount): static
-    {
-        $this->amount = $amount;
-
-        return $this;
-    }
-
-    public function phoneNumber(string $phone): static
-    {
-        $this->phone_number = $phone;
-
-        return $this;
-    }
-
-    public function consumerKey(string $consumer_key): static
-    {
-        $this->consumer_key = $consumer_key;
-
-        return $this;
-    }
-
-    public function consumerSecret(string $consumer_secret): static
-    {
-        $this->consumer_secret = $consumer_secret;
-
-        return $this;
-    }
-
-    public function passKey(string $pass_key): static
-    {
-        $this->pass_key = $pass_key;
-
-        return $this;
-    }
-
-    public function response(): object
-    {
-        return $this->response;
-    }
-
-    public function securityCredential(string $initiator_password): Mpesa
-    {
-        $method = 'aes-256-cbc';
-        $password = 'mypassword';
-        $ivlen = openssl_cipher_iv_length($method);
-        $iv = openssl_random_pseudo_bytes($ivlen);
-        $this->security_credential = base64_encode($iv . openssl_encrypt("{$initiator_password} + Certificate", $method, $password, 0, $iv));
-
-        return $this;
-    }
-
-    public function resultUrl(string $result_url): Mpesa
-    {
-        $this->result_url = $result_url;
-
-        return $this;
-    }
-
-    public function queueTimeoutUrl(string $timeout_url): Mpesa
-    {
-        $this->queue_timeout_url = $timeout_url;
-
+    /**
+     * Set the credentials for the M-Pesa API
+     *
+     * @param string $consumerKey The consumer key
+     * @param string $consumerSecret The consumer secret
+     * @param string $environment The environment (live or sandbox)
+     * @return self
+     */
+    public function setCredentials(string $consumerKey, string $consumerSecret, string $environment = 'sandbox'): self{
+        $this->config = new MpesaConfig($consumerKey, $consumerSecret, $environment);
+        $this->client = new ApiClient($this->config);
         return $this;
     }
 
     /**
-     * @param array<int,mixed> $data
+     * Set the business code
+     *
+     * @param string $businessCode The business code
+     * @return self
      */
-    public function curls(array $data, string $url)
+    public function setBusinessCode(string $businessCode): self
     {
-        return $this->apiClient->curls($data, $url);
+        $this->config->setBusinessCode($businessCode);
+        return $this;
     }
 
-    public function stk(): Stk
+    /**
+     * Set the pass key
+     *
+     * @param string $passKey The pass key
+     * @return self
+     */
+    public function setPassKey(string $passKey): self
     {
-        return new Stk([
-            'consumer_key' => $this->consumer_key,
-            'consumer_secret' => $this->consumer_secret,
-            'base_url' => $this->baseUrl,
-            'business_code' => $this->business_code,
-            'transaction_type' => $this->transaction_type,
-            'amount' => $this->amount,
-            'phone_number' => $this->phone_number,
-            'call_back_url' => $this->call_back_url,
-        ]);
+        $this->config->setPassKey($passKey);
+        return $this;
     }
 
-    public function customerToBusiness(): CustomerToBusiness
+    /**
+     * Get STK push service
+     *
+     * @return StkService
+     */
+    public function stk(): StkService
     {
-        return new CustomerToBusiness($this->consumer_key, $this->consumer_secret, $this->baseUrl);
+        return new StkService($this->config, $this->client);
     }
 
-    public function businessToCustomer(): BusinessToCustomer
+    /**
+     * Get C2B service
+     *
+     * @return CustomerToBusinessService
+     */
+    public function customerToBusiness(): CustomerToBusinessService
     {
-        return new BusinessToCustomer($this->consumer_key, $this->consumer_secret, $this->baseUrl);
+        return new CustomerToBusinessService($this->config, $this->client);
     }
 
-    public function checkBalance(): AccountBalance
+    /**
+     * Get B2C service
+     *
+     * @return BusinessToCustomerService
+     */
+    public function businessToCustomer(): BusinessToCustomerService
     {
-        return new AccountBalance($this->consumer_key, $this->consumer_secret, $this->baseUrl);
+        return new BusinessToCustomerService($this->config, $this->client);
     }
 
-    public function transactionStatus(): TransactionStatus
+    /**
+     * Get account balance service
+     *
+     * @return AccountBalanceService
+     */
+    public function accountBalance(): AccountBalanceService
     {
-        return new TransactionStatus($this->consumer_key, $this->consumer_secret, $this->baseUrl);
+        return new AccountBalanceService($this->config, $this->client);
     }
 
-    public function reversal(): Reversal
+    /**
+     * Get transaction status service
+     *
+     * @return TransactionStatusService
+     */
+    public function transactionStatus(): TransactionStatusService
     {
-        return new Reversal($this->consumer_key, $this->consumer_secret, $this->baseUrl);
+        return new TransactionStatusService($this->config, $this->client);
+    }
+
+    /**
+     * Get reversal service
+     *
+     * @return ReversalService
+     */
+    public function reversal(): ReversalService
+    {
+        return new ReversalService($this->config, $this->client);
     }
 }
