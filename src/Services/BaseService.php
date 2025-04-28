@@ -48,25 +48,35 @@ abstract class BaseService
      *
      * @param string $phone The phone number
      * @param string $countryCode The country code
-     * @return string|array|null The cleaned phone number, or an empty string/array if the phone number is invalid
+     * @return string The cleaned phone number, or an empty string/array if the phone number is invalid
+     * @throws \Exception
      */
-    function cleanPhoneNumber(string $phone, string $countryCode = '254'): array|string|null
+    function cleanPhoneNumber(string $phone, string $countryCode = '254'): string
     {
         if (empty($phone)) {
-            return '';
-        }
-        if($phone < 9) {
-            return '';
+            throw new \RuntimeException('Phone number cannot be null!');
         }
 
         $phone = trim($phone);
-        if (str_starts_with($phone, '+')) {
-            return '' . preg_replace('/\D/', '', substr($phone, 1));
+
+        // Check if phone length is too short
+        if (strlen($phone) < 9) {
+            throw new \RuntimeException('Phone number is too short!');
         }
-        if(str_starts_with($phone, '0')) {
+
+        if (str_starts_with($phone, '+')) {
+            // Remove the '+' and keep digits
+            return preg_replace('/\D/', '', substr($phone, 1));
+        }
+
+        if (str_starts_with($phone, '0')) {
+            // Replace leading 0 with country code
             return $countryCode . preg_replace('/\D/', '', substr($phone, 1));
         }
+
+        // Otherwise, just clean to digits
         return preg_replace('/\D/', '', $phone);
     }
+
 
 }
