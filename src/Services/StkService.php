@@ -44,10 +44,11 @@ class StkService extends BaseService
      *
      * @param string $phoneNumber The phone number
      * @return self
+     * @throws \Exception
      */
     public function setPhoneNumber(string $phoneNumber): self
     {
-        $this->phoneNumber = $phoneNumber;
+        $this->phoneNumber = $this->cleanPhoneNumber($phoneNumber);
         return $this;
     }
 
