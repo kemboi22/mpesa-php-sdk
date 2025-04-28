@@ -11,14 +11,13 @@ $mpesa = $mpesa->setCredentials('rHZXmBkGz6Ne30cA923bp9G0rSAK41hsDVCq65x522WkVqC
 //$mpesa->passKey('bfb279f9aa9bdbcf158e97dd71a467cd2e0c893059b10f78e6b72ada1ed2c919');
 //$mpesa->phoneNumber('254111844429');
 
-$stk = $mpesa->stk()
-    ->businessCode("174379")
-    ->amount('1')
-    ->phoneNumber("254111844429")
-    ->callBackUrl("CALL_BACK_URL")
-    ->transactionType("CustomerPayBillOnline")
-    ->accountReference("This is a test account reference")
-    ->transactionDesc("Test Push Mpesa")
-    ->passKey("bfb279f9aa9bdbcf158e97dd71a467cd2e0c893059b10f78e6b72ada1ed2c919");
+$stk = $mpesa->setBusinessCode('174379')
+    ->setPassKey('bfb279f9aa9bdbcf158e97dd71a467cd2e0c893059b10f78e6b72ada1ed2c919')
+    ->stk()->setAmount('1')
+    ->setPhoneNumber("254111844429")
+    ->setCallBackUrl("https://f8e3-197-248-144-75.ngrok-free.app/callback")
+    ->setTransactionType("CustomerPayBillOnline")
+    ->setAccountReference("This is a test account reference")
+    ->setTransactionDesc("Test Push Mpesa");
 
-print_r($stk->push()->response());
+print_r($stk->push()->getResponse());
