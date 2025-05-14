@@ -3,87 +3,98 @@
 namespace Kemboielvis\MpesaSdkPhp\Services;
 
 /**
- * Customer to Business service
+ * Customer to Business service.
  */
-class CustomerToBusinessService extends BaseService
-{
+class CustomerToBusinessService extends BaseService {
     private string $confirmationUrl = '';
+
     private string $validationUrl = '';
+
     private string $responseType = '';
+
     private string $commandId = '';
+
     private string $billRefNumber = '';
+
     private ?object $response = null;
+
     private string $amount;
+
     private string $phoneNumber;
 
     /**
-     * Set the confirmation URL
+     * Set the confirmation URL.
      *
      * @param string $url The confirmation URL
+     *
      * @return self
      */
-    public function setConfirmationUrl(string $url): self
-    {
+    public function setConfirmationUrl(string $url): self {
         $this->confirmationUrl = $url;
+
         return $this;
     }
 
     /**
-     * Set the validation URL
+     * Set the validation URL.
      *
      * @param string $url The validation URL
+     *
      * @return self
      */
-    public function setValidationUrl(string $url): self
-    {
+    public function setValidationUrl(string $url): self {
         $this->validationUrl = $url;
+
         return $this;
     }
 
     /**
-     * Set the response type
+     * Set the response type.
      *
      * @param string $type The response type
+     *
      * @return self
      */
-    public function setResponseType(string $type): self
-    {
+    public function setResponseType(string $type): self {
         $this->responseType = $type;
+
         return $this;
     }
 
     /**
-     * Set the command ID
+     * Set the command ID.
      *
      * @param string $commandId The command ID
+     *
      * @return self
      */
-    public function setCommandId(string $commandId): self
-    {
+    public function setCommandId(string $commandId): self {
         $this->commandId = $commandId;
+
         return $this;
     }
 
     /**
-     * Set the bill reference number
+     * Set the bill reference number.
      *
      * @param string $refNumber The bill reference number
+     *
      * @return self
      */
-    public function setBillRefNumber(string $refNumber): self
-    {
+    public function setBillRefNumber(string $refNumber): self {
         $this->billRefNumber = $refNumber;
+
         return $this;
     }
 
     /**
-     * Register C2B URLs
+     * Register C2B URLs.
      *
      * @return self
+     *
      * @throws \InvalidArgumentException If required parameters are missing
      */
-    public function registerUrl(): self
-    {
+    public function registerUrl(): self {
         if (empty($this->config->getBusinessCode())) {
             throw new \InvalidArgumentException('Business code is required');
         }
@@ -109,15 +120,16 @@ class CustomerToBusinessService extends BaseService
     }
 
     /**
-     * Simulate a C2B transaction
+     * Simulate a C2B transaction.
      *
      * @param string|null $phoneNumber Optional phone number
-     * @param string|null $amount Optional amount
+     * @param string|null $amount      Optional amount
+     *
      * @return self
+     *
      * @throws \InvalidArgumentException If required parameters are missing
      */
-    public function simulate(?string $phoneNumber = null, ?string $amount = null): self
-    {
+    public function simulate(?string $phoneNumber = null, ?string $amount = null): self {
         if ($phoneNumber !== null) {
             $this->setPhoneNumber($phoneNumber);
         }
@@ -156,36 +168,37 @@ class CustomerToBusinessService extends BaseService
     }
 
     /**
-     * Set the phone number
+     * Set the phone number.
      *
      * @param string $phoneNumber The phone number
+     *
      * @return self
      */
-    public function setPhoneNumber(string $phoneNumber): self
-    {
+    public function setPhoneNumber(string $phoneNumber): self {
         $this->phoneNumber = $phoneNumber;
+
         return $this;
     }
 
     /**
-     * Set the amount
+     * Set the amount.
      *
      * @param int|string $amount The amount
+     *
      * @return self
      */
-    public function setAmount(int|string $amount): self
-    {
+    public function setAmount(int|string $amount): self {
         $this->amount = (string)$amount;
+
         return $this;
     }
 
     /**
-     * Get the response
+     * Get the response.
      *
      * @return object|null The response
      */
-    public function getResponse(): ?object
-    {
+    public function getResponse(): ?object {
         return $this->response;
     }
 }

@@ -4,22 +4,21 @@ namespace Kemboielvis\MpesaSdkPhp\Helpers;
 
 use Kemboielvis\MpesaSdkPhp\Mpesa;
 
-class Stk extends Mpesa
-{
-    public function __construct($data)
-    {
+class Stk extends Mpesa {
+    public function __construct($data) {
         parent::__construct();
         $this->configure($data);
     }
+
     private string $account_reference = '';
 
     private string $transaction_desc = '';
 
     private $baseUrl;
 
-
     /**
-     * Configure the STK object with the required parameters
+     * Configure the STK object with the required parameters.
+     *
      * @param array $data The array should contain the following keys:
      *                    - business_code: The business code of the mpesa account
      *                    - transaction_type: The transaction type of the mpesa account
@@ -29,11 +28,12 @@ class Stk extends Mpesa
      *                    - consumer_key: The consumer key for the mpesa account
      *                    - consumer_secret: The consumer secret for the mpesa account
      *                    - base_url: The base url for the mpesa api
+     *
      * @return Stk
+     *
      * @throws \Exception
      */
-    public function configure(array $data): Stk
-    {
+    public function configure(array $data): Stk {
         if (array_key_exists('business_code', $data)) {
             if (array_key_exists('transaction_type', $data)) {
                 if (array_key_exists('amount', $data)) {
@@ -50,6 +50,7 @@ class Stk extends Mpesa
 
                             return $this;
                         }
+
                         throw new \Exception('Call Back url is required');
                     } else {
                         throw new \Exception('A phone Number is required');
@@ -76,8 +77,7 @@ class Stk extends Mpesa
      *
      * @return Stk Returns the current instance of the Stk class.
      */
-    public function push(): Stk
-    {
+    public function push(): Stk {
         $array_data = [
             'BusinessShortCode' => $this->business_code,
             'Password' => $this->password(),
@@ -108,8 +108,7 @@ class Stk extends Mpesa
      *
      * @return Stk Returns the current instance of the Stk class.
      */
-    public function transactionType(string $transaction_type): Stk
-    {
+    public function transactionType(string $transaction_type): Stk {
         $this->transaction_type = $transaction_type;
 
         return $this;
@@ -126,8 +125,7 @@ class Stk extends Mpesa
      *
      * @return Stk Returns the current instance of the Stk class.
      */
-    public function accountReference(string $account_reference): Stk
-    {
+    public function accountReference(string $account_reference): Stk {
         $this->account_reference = $account_reference;
 
         return $this;
@@ -142,8 +140,7 @@ class Stk extends Mpesa
      *
      * @return Stk Returns the current instance of the Stk class.
      */
-    public function transactionDesc(string $transaction_desc): Stk
-    {
+    public function transactionDesc(string $transaction_desc): Stk {
         $this->transaction_desc = $transaction_desc;
 
         return $this;
@@ -158,8 +155,7 @@ class Stk extends Mpesa
      *
      * @return Stk Returns the current instance of the Stk class.
      */
-    public function callBackUrl(string $url): Stk
-    {
+    public function callBackUrl(string $url): Stk {
         $this->call_back_url = $url;
 
         return $this;
@@ -173,8 +169,7 @@ class Stk extends Mpesa
      *
      * @return string The Checkout Request ID.
      */
-    public function checkoutId()
-    {
+    public function checkoutId() {
         return $this->response->CheckoutRequestID;
     }
 
@@ -187,8 +182,7 @@ class Stk extends Mpesa
      *
      * @return mixed The response from the M-Pesa API containing the transaction status.
      */
-    public function query()
-    {
+    public function query() {
         $array_data = [
             'BusinessShortCode' => $this->business_code,
             'Password' => $this->password(),

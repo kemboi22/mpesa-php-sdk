@@ -1,0 +1,4 @@
+<rule ref="PSR12">
+    <exclude name="PSR12.Methods.FunctionClosingBrace"/>
+    <exclude name="PSR12.Functions.FunctionDeclarationArgumentSpacing"/>
+</rule>

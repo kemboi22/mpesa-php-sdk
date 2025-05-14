@@ -1,7 +1,8 @@
 <?php
 
-require "../../vendor/autoload.php";
 use Kemboielvis\MpesaSdkPhp\Mpesa;
+
+require "../vendor/autoload.php";
 
 $mpesa = new Mpesa(
     'rHZXmBkGz6Ne30cA923bp9G0rSAK41hsDVCq65x522WkVqCF',

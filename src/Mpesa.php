@@ -13,19 +13,19 @@ use Kemboielvis\MpesaSdkPhp\Services\StkService;
 use Kemboielvis\MpesaSdkPhp\Services\TransactionStatusService;
 
 /**
- * Main M-Pesa SDK class
+ * Main M-Pesa SDK class.
  */
-class Mpesa
-{
+class Mpesa {
     private MpesaConfig $config;
+
     private MpesaInterface $client;
 
     /**
-     * Create a new Mpesa instance
+     * Create a new Mpesa instance.
      *
-     * @param string|null $consumerKey The consumer key
+     * @param string|null $consumerKey    The consumer key
      * @param string|null $consumerSecret The consumer secret
-     * @param string $environment The environment (live or sandbox)
+     * @param string      $environment    The environment (live or sandbox)
      */
     public function __construct(
         string $consumerKey = null,
@@ -37,100 +37,98 @@ class Mpesa
     }
 
     /**
-     * Set the credentials for the M-Pesa API
+     * Set the credentials for the M-Pesa API.
      *
-     * @param string $consumerKey The consumer key
+     * @param string $consumerKey    The consumer key
      * @param string $consumerSecret The consumer secret
-     * @param string $environment The environment (live or sandbox)
+     * @param string $environment    The environment (live or sandbox)
+     *
      * @return self
      */
-    public function setCredentials(string $consumerKey, string $consumerSecret, string $environment = 'sandbox'): self{
+    public function setCredentials(string $consumerKey, string $consumerSecret, string $environment = 'sandbox'): self {
         $this->config = new MpesaConfig($consumerKey, $consumerSecret, $environment);
         $this->client = new ApiClient($this->config);
+
         return $this;
     }
 
     /**
-     * Set the business code
+     * Set the business code.
      *
      * @param string $businessCode The business code
+     *
      * @return self
      */
-    public function setBusinessCode(string $businessCode): self
-    {
+    public function setBusinessCode(string $businessCode): self {
         $this->config->setBusinessCode($businessCode);
+
         return $this;
     }
 
     /**
-     * Set the pass key
+     * Set the pass key.
      *
      * @param string $passKey The pass key
+     *
      * @return self
      */
-    public function setPassKey(string $passKey): self
-    {
+    public function setPassKey(string $passKey): self {
         $this->config->setPassKey($passKey);
+
         return $this;
     }
 
     /**
-     * Get STK push service
+     * Get STK push service.
      *
      * @return StkService
      */
-    public function stk(): StkService
-    {
+    public function stk(): StkService {
         return new StkService($this->config, $this->client);
     }
 
     /**
-     * Get C2B service
+     * Get C2B service.
      *
      * @return CustomerToBusinessService
      */
-    public function customerToBusiness(): CustomerToBusinessService
-    {
+    public function customerToBusiness(): CustomerToBusinessService {
         return new CustomerToBusinessService($this->config, $this->client);
     }
 
     /**
-     * Get B2C service
+     * Get B2C service.
      *
      * @return BusinessToCustomerService
      */
-    public function businessToCustomer(): BusinessToCustomerService
-    {
+    public function businessToCustomer(): BusinessToCustomerService {
         return new BusinessToCustomerService($this->config, $this->client);
     }
 
     /**
-     * Get account balance service
+     * Get account balance service.
      *
      * @return AccountBalanceService
      */
-    public function accountBalance(): AccountBalanceService
-    {
+    public function accountBalance(): AccountBalanceService {
         return new AccountBalanceService($this->config, $this->client);
     }
 
     /**
-     * Get transaction status service
+     * Get transaction status service.
      *
      * @return TransactionStatusService
      */
-    public function transactionStatus(): TransactionStatusService
-    {
+    public function transactionStatus(): TransactionStatusService {
         return new TransactionStatusService($this->config, $this->client);
     }
 
     /**
-     * Get reversal service
+     * Get reversal service.
      *
      * @return ReversalService
      */
-    public function reversal(): ReversalService
-    {
+    public function reversal(): ReversalService {
         return new ReversalService($this->config, $this->client);
     }
 }
