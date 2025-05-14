@@ -5,7 +5,8 @@ namespace Kemboielvis\MpesaSdkPhp\Abstracts;
 /**
  * Interface for all M-Pesa API operations.
  */
-interface MpesaInterface {
+interface MpesaInterface
+{
     /**
      * Execute an API request.
      *

@@ -5,12 +5,14 @@ namespace Kemboielvis\MpesaSdkPhp\Abstracts;
 /**
  * HTTP client for M-Pesa API.
  */
-class ApiClient implements MpesaInterface {
+class ApiClient implements MpesaInterface
+{
     private MpesaConfig $config;
 
     private TokenManager $tokenManager;
 
-    public function __construct(MpesaConfig $config) {
+    public function __construct(MpesaConfig $config)
+    {
         $this->config = $config;
         $this->tokenManager = new TokenManager($config);
     }
@@ -25,7 +27,8 @@ class ApiClient implements MpesaInterface {
      *
      * @throws \RuntimeException If the request fails
      */
-    public function executeRequest(array $data, string $endpoint): object {
+    public function executeRequest(array $data, string $endpoint): object
+    {
         $token = $this->tokenManager->getToken();
 
         $curl = curl_init($this->config->getBaseUrl() . $endpoint);
@@ -75,7 +78,8 @@ class ApiClient implements MpesaInterface {
      *
      * @return object The API response
      */
-    private function retryRequest(array $data, string $endpoint): object {
+    private function retryRequest(array $data, string $endpoint): object
+    {
         $token = $this->tokenManager->getToken();
 
         $curl = curl_init($this->config->getBaseUrl() . $endpoint);

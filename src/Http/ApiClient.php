@@ -2,7 +2,8 @@
 
 namespace Kemboielvis\MpesaSdkPhp\Http;
 
-class ApiClient {
+class ApiClient
+{
     private $baseUrl;
 
     private $token_url;
@@ -21,7 +22,8 @@ class ApiClient {
      * @param string $consumer_key    The consumer key for the M-Pesa API
      * @param string $consumer_secret The consumer secret for the M-Pesa API
      */
-    public function __construct(string $baseUrl, string $token_url, string $consumer_key, string $consumer_secret) {
+    public function __construct(string $baseUrl, string $token_url, string $consumer_key, string $consumer_secret)
+    {
         $this->baseUrl = $baseUrl;
         $this->token_url = $token_url;
         $this->consumer_key = $consumer_key;
@@ -39,7 +41,8 @@ class ApiClient {
      *
      * @return string|null The authentication token, or null if no valid token could be obtained
      */
-    public function authenticationToken() {
+    public function authenticationToken()
+    {
         // Check if we have a cached token
         $cached_token = $this->getCachedToken();
         if ($cached_token) {
@@ -83,7 +86,8 @@ class ApiClient {
      *
      * @return string|null The cached token if valid, or null if no valid cached token is available.
      */
-    private function getCachedToken() {
+    private function getCachedToken()
+    {
         if (! file_exists($this->token_cache_file)) {
             return null;
         }
@@ -110,7 +114,8 @@ class ApiClient {
      *
      * @return void
      */
-    private function cacheToken(string $token, $expires_in): void {
+    private function cacheToken(string $token, $expires_in): void
+    {
         $cache_data = [
             'token' => $token,
             'expires_at' => time() + $expires_in,
@@ -133,7 +138,8 @@ class ApiClient {
      *
      * @return mixed The decoded JSON response from the server.
      */
-    public function curls(array $data, string $url) {
+    public function curls(array $data, string $url)
+    {
         $token = $this->authenticationToken();
         $curl_transfer = curl_init($this->baseUrl . $url);
         curl_setopt($curl_transfer, CURLOPT_HTTPHEADER, [
@@ -166,7 +172,8 @@ class ApiClient {
      * when the API returns an unauthorized response, indicating that the
      * current token is no longer valid.
      */
-    private function clearTokenCache(): void {
+    private function clearTokenCache(): void
+    {
         if (file_exists($this->token_cache_file)) {
             unlink($this->token_cache_file);
         }
@@ -184,7 +191,8 @@ class ApiClient {
      *
      * @return mixed The response from the retried request.
      */
-    private function handleUnauthorized(array $data, string $url) {
+    private function handleUnauthorized(array $data, string $url)
+    {
         // Get a fresh token
         $token = $this->authenticationToken();
 

@@ -5,7 +5,8 @@ namespace Kemboielvis\MpesaSdkPhp\Services;
 /**
  * Transaction Status service.
  */
-class TransactionStatusService extends AbstractService {
+class TransactionStatusService extends AbstractService
+{
     private string $initiator = "";
 
     private string $transaction_id = "";
@@ -23,7 +24,8 @@ class TransactionStatusService extends AbstractService {
      *
      * @return $this
      */
-    public function setInitiator(string $initiator): self {
+    public function setInitiator(string $initiator): self
+    {
         $this->initiator = $initiator;
 
         return $this;
@@ -36,7 +38,8 @@ class TransactionStatusService extends AbstractService {
      *
      * @return $this
      */
-    public function setTransactionId(string $transaction_id): self {
+    public function setTransactionId(string $transaction_id): self
+    {
         $this->transaction_id = $transaction_id;
 
         return $this;
@@ -49,7 +52,8 @@ class TransactionStatusService extends AbstractService {
      *
      * @return $this
      */
-    public function setIdentifierType(string $identifier_type): self {
+    public function setIdentifierType(string $identifier_type): self
+    {
         $this->identifier_type = $identifier_type;
 
         return $this;
@@ -63,7 +67,8 @@ class TransactionStatusService extends AbstractService {
      *
      * @return $this
      */
-    public function setRemarks(string $remarks): self {
+    public function setRemarks(string $remarks): self
+    {
         $this->remarks = $remarks;
 
         return $this;
@@ -79,7 +84,8 @@ class TransactionStatusService extends AbstractService {
      *
      * @return $this
      */
-    public function setOccasion(string $occasion): self {
+    public function setOccasion(string $occasion): self
+    {
         $this->occasion = $occasion;
 
         return $this;

@@ -5,7 +5,8 @@ namespace Kemboielvis\MpesaSdkPhp\Services;
 /**
  * STK Push service.
  */
-class StkService extends BaseService {
+class StkService extends BaseService
+{
     private string $transactionType = '';
 
     private string $amount = '';
@@ -27,7 +28,8 @@ class StkService extends BaseService {
      *
      * @return self
      */
-    public function setTransactionType(string $type): self {
+    public function setTransactionType(string $type): self
+    {
         $this->transactionType = $type;
 
         return $this;
@@ -40,7 +42,8 @@ class StkService extends BaseService {
      *
      * @return self
      */
-    public function setAmount($amount): self {
+    public function setAmount($amount): self
+    {
         $this->amount = (string)$amount;
 
         return $this;
@@ -55,7 +58,8 @@ class StkService extends BaseService {
      *
      * @throws \Exception
      */
-    public function setPhoneNumber(string $phoneNumber): self {
+    public function setPhoneNumber(string $phoneNumber): self
+    {
         $this->phoneNumber = $this->cleanPhoneNumber($phoneNumber);
 
         return $this;
@@ -68,7 +72,8 @@ class StkService extends BaseService {
      *
      * @return self
      */
-    public function setCallbackUrl(string $url): self {
+    public function setCallbackUrl(string $url): self
+    {
         $this->callbackUrl = $url;
 
         return $this;
@@ -81,7 +86,8 @@ class StkService extends BaseService {
      *
      * @return self
      */
-    public function setAccountReference(string $reference): self {
+    public function setAccountReference(string $reference): self
+    {
         $this->accountReference = $reference;
 
         return $this;
@@ -94,7 +100,8 @@ class StkService extends BaseService {
      *
      * @return self
      */
-    public function setTransactionDesc(string $description): self {
+    public function setTransactionDesc(string $description): self
+    {
         $this->transactionDesc = $description;
 
         return $this;
@@ -105,7 +112,8 @@ class StkService extends BaseService {
      *
      * @throws \InvalidArgumentException If required parameters are missing
      */
-    private function validatePushParams(): void {
+    private function validatePushParams(): void
+    {
         if (empty($this->config->getBusinessCode())) {
             throw new \InvalidArgumentException('Business code is required');
         }
@@ -134,7 +142,8 @@ class StkService extends BaseService {
      *
      * @throws \InvalidArgumentException If required parameters are missing
      */
-    public function push(): self {
+    public function push(): self
+    {
         $this->validatePushParams();
 
         $data = [
@@ -163,7 +172,8 @@ class StkService extends BaseService {
      *
      * @throws \RuntimeException If no response is available
      */
-    public function getCheckoutRequestId(): string {
+    public function getCheckoutRequestId(): string
+    {
         if (! $this->response || ! isset($this->response->CheckoutRequestID)) {
             throw new \RuntimeException('No STK push response available');
         }
@@ -180,7 +190,8 @@ class StkService extends BaseService {
      *
      * @throws \RuntimeException If no checkout request ID is available
      */
-    public function query(?string $checkoutRequestId = null): object {
+    public function query(?string $checkoutRequestId = null): object
+    {
         $requestId = $checkoutRequestId ?? $this->getCheckoutRequestId();
 
         $data = [
@@ -198,7 +209,8 @@ class StkService extends BaseService {
      *
      * @return object|null The response
      */
-    public function getResponse(): ?object {
+    public function getResponse(): ?object
+    {
         return $this->response;
     }
 }

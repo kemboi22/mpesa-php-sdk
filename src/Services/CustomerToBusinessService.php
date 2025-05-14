@@ -5,7 +5,8 @@ namespace Kemboielvis\MpesaSdkPhp\Services;
 /**
  * Customer to Business service.
  */
-class CustomerToBusinessService extends BaseService {
+class CustomerToBusinessService extends BaseService
+{
     private string $confirmationUrl = '';
 
     private string $validationUrl = '';
@@ -29,7 +30,8 @@ class CustomerToBusinessService extends BaseService {
      *
      * @return self
      */
-    public function setConfirmationUrl(string $url): self {
+    public function setConfirmationUrl(string $url): self
+    {
         $this->confirmationUrl = $url;
 
         return $this;
@@ -42,7 +44,8 @@ class CustomerToBusinessService extends BaseService {
      *
      * @return self
      */
-    public function setValidationUrl(string $url): self {
+    public function setValidationUrl(string $url): self
+    {
         $this->validationUrl = $url;
 
         return $this;
@@ -55,7 +58,8 @@ class CustomerToBusinessService extends BaseService {
      *
      * @return self
      */
-    public function setResponseType(string $type): self {
+    public function setResponseType(string $type): self
+    {
         $this->responseType = $type;
 
         return $this;
@@ -68,7 +72,8 @@ class CustomerToBusinessService extends BaseService {
      *
      * @return self
      */
-    public function setCommandId(string $commandId): self {
+    public function setCommandId(string $commandId): self
+    {
         $this->commandId = $commandId;
 
         return $this;
@@ -81,7 +86,8 @@ class CustomerToBusinessService extends BaseService {
      *
      * @return self
      */
-    public function setBillRefNumber(string $refNumber): self {
+    public function setBillRefNumber(string $refNumber): self
+    {
         $this->billRefNumber = $refNumber;
 
         return $this;
@@ -94,7 +100,8 @@ class CustomerToBusinessService extends BaseService {
      *
      * @throws \InvalidArgumentException If required parameters are missing
      */
-    public function registerUrl(): self {
+    public function registerUrl(): self
+    {
         if (empty($this->config->getBusinessCode())) {
             throw new \InvalidArgumentException('Business code is required');
         }
@@ -129,7 +136,8 @@ class CustomerToBusinessService extends BaseService {
      *
      * @throws \InvalidArgumentException If required parameters are missing
      */
-    public function simulate(?string $phoneNumber = null, ?string $amount = null): self {
+    public function simulate(?string $phoneNumber = null, ?string $amount = null): self
+    {
         if ($phoneNumber !== null) {
             $this->setPhoneNumber($phoneNumber);
         }
@@ -174,7 +182,8 @@ class CustomerToBusinessService extends BaseService {
      *
      * @return self
      */
-    public function setPhoneNumber(string $phoneNumber): self {
+    public function setPhoneNumber(string $phoneNumber): self
+    {
         $this->phoneNumber = $phoneNumber;
 
         return $this;
@@ -187,7 +196,8 @@ class CustomerToBusinessService extends BaseService {
      *
      * @return self
      */
-    public function setAmount(int|string $amount): self {
+    public function setAmount(int|string $amount): self
+    {
         $this->amount = (string)$amount;
 
         return $this;
@@ -198,7 +208,8 @@ class CustomerToBusinessService extends BaseService {
      *
      * @return object|null The response
      */
-    public function getResponse(): ?object {
+    public function getResponse(): ?object
+    {
         return $this->response;
     }
 }

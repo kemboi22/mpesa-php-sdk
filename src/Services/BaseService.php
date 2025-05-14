@@ -8,12 +8,14 @@ use Kemboielvis\MpesaSdkPhp\Abstracts\MpesaInterface;
 /**
  * Abstract base service class.
  */
-abstract class BaseService {
+abstract class BaseService
+{
     protected MpesaConfig $config;
 
     protected MpesaInterface $client;
 
-    public function __construct(MpesaConfig $config, MpesaInterface $client) {
+    public function __construct(MpesaConfig $config, MpesaInterface $client)
+    {
         $this->config = $config;
         $this->client = $client;
     }
@@ -23,7 +25,8 @@ abstract class BaseService {
      *
      * @return string The timestamp
      */
-    protected function generateTimestamp(): string {
+    protected function generateTimestamp(): string
+    {
         return date('YmdHis');
     }
 
@@ -32,7 +35,8 @@ abstract class BaseService {
      *
      * @return string The password
      */
-    protected function generatePassword(): string {
+    protected function generatePassword(): string
+    {
         return base64_encode(
             $this->config->getBusinessCode() .
             $this->config->getPassKey() .
@@ -50,7 +54,8 @@ abstract class BaseService {
      *
      * @throws \Exception
      */
-    public function cleanPhoneNumber(string $phone, string $countryCode = '254'): string {
+    public function cleanPhoneNumber(string $phone, string $countryCode = '254'): string
+    {
         if (empty($phone)) {
             throw new \RuntimeException('Phone number cannot be null!');
         }

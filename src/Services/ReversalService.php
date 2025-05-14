@@ -5,7 +5,8 @@ namespace Kemboielvis\MpesaSdkPhp\Services;
 /**
  * Reversal service.
  */
-class ReversalService extends AbstractService {
+class ReversalService extends AbstractService
+{
     private string $initiator = "";
 
     private string $transaction_id = "";
@@ -23,7 +24,8 @@ class ReversalService extends AbstractService {
      *
      * @return $this
      */
-    public function setInitiator(string $initiator): self {
+    public function setInitiator(string $initiator): self
+    {
         $this->initiator = $initiator;
 
         return $this;
@@ -36,7 +38,8 @@ class ReversalService extends AbstractService {
      *
      * @return $this
      */
-    public function setTransactionId(string $transaction_id): self {
+    public function setTransactionId(string $transaction_id): self
+    {
         $this->transaction_id = $transaction_id;
 
         return $this;
@@ -54,7 +57,8 @@ class ReversalService extends AbstractService {
      *
      * @return $this
      */
-    public function setReceiverIdentifierType(string $receiver_identifier_type): self {
+    public function setReceiverIdentifierType(string $receiver_identifier_type): self
+    {
         $this->receiver_identifier_type = $receiver_identifier_type;
 
         return $this;
@@ -68,7 +72,8 @@ class ReversalService extends AbstractService {
      *
      * @return $this
      */
-    public function setRemarks(string $remarks): self {
+    public function setRemarks(string $remarks): self
+    {
         $this->remarks = $remarks;
 
         return $this;
@@ -85,7 +90,8 @@ class ReversalService extends AbstractService {
      *
      * @return $this
      */
-    public function setOccasion(string $occasion): self {
+    public function setOccasion(string $occasion): self
+    {
         $this->occasion = $occasion;
 
         return $this;

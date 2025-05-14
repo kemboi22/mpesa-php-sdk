@@ -5,7 +5,8 @@ namespace Kemboielvis\MpesaSdkPhp\Abstracts;
 /**
  * Configuration class for M-Pesa SDK.
  */
-class MpesaConfig {
+class MpesaConfig
+{
     private string $consumerKey;
 
     private string $consumerSecret;
@@ -47,37 +48,45 @@ class MpesaConfig {
         $this->result_url = $result_url ?? '';
     }
 
-    public function getConsumerKey(): string {
+    public function getConsumerKey(): string
+    {
         return $this->consumerKey;
     }
 
-    public function getConsumerSecret(): string {
+    public function getConsumerSecret(): string
+    {
         return $this->consumerSecret;
     }
 
-    public function getEnvironment(): string {
+    public function getEnvironment(): string
+    {
         return $this->environment;
     }
 
-    public function getBaseUrl(): string {
+    public function getBaseUrl(): string
+    {
         return $this->baseUrl;
     }
 
-    public function getBusinessCode(): string {
+    public function getBusinessCode(): string
+    {
         return $this->businessCode;
     }
 
-    public function setBusinessCode(string $businessCode): self {
+    public function setBusinessCode(string $businessCode): self
+    {
         $this->businessCode = $businessCode;
 
         return $this;
     }
 
-    public function getPassKey(): string {
+    public function getPassKey(): string
+    {
         return $this->passKey;
     }
 
-    public function setPassKey(string $passKey): self {
+    public function setPassKey(string $passKey): self
+    {
         $this->passKey = $passKey;
 
         return $this;
@@ -93,7 +102,8 @@ class MpesaConfig {
      *
      * @return string
      */
-    public function getSecurityCredential(): string {
+    public function getSecurityCredential(): string
+    {
         return $this->security_credential;
     }
 
@@ -104,7 +114,8 @@ class MpesaConfig {
      *
      * @return self
      */
-    public function setSecurityCredential(string $initiator_password): self {
+    public function setSecurityCredential(string $initiator_password): self
+    {
         $initiator_password1 = $initiator_password;
 
         $method = 'aes-256-cbc';
@@ -130,7 +141,8 @@ class MpesaConfig {
      *
      * @return self
      */
-    public function setQueueTimeoutUrl(string $queue_timeout_url): self {
+    public function setQueueTimeoutUrl(string $queue_timeout_url): self
+    {
         $this->queue_timeout_url = $queue_timeout_url;
 
         return $this;
@@ -142,7 +154,8 @@ class MpesaConfig {
      * @return string The URL that will be used by the API to send a notification
      *                in case the request times out while awaiting processing in the queue.
      */
-    public function getQueueTimeoutUrl(): string {
+    public function getQueueTimeoutUrl(): string
+    {
         return $this->queue_timeout_url;
     }
 
@@ -153,7 +166,8 @@ class MpesaConfig {
      *
      * @return self
      */
-    public function setResultUrl(string $result_url): self {
+    public function setResultUrl(string $result_url): self
+    {
         $this->result_url = $result_url;
 
         return $this;
@@ -164,7 +178,8 @@ class MpesaConfig {
      *
      * @return string The result URL
      */
-    public function getResultUrl(): string {
+    public function getResultUrl(): string
+    {
         return $this->result_url;
     }
 }

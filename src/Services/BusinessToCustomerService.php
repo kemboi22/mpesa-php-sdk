@@ -5,7 +5,8 @@ namespace Kemboielvis\MpesaSdkPhp\Services;
 /**
  * Business to Customer service.
  */
-class BusinessToCustomerService extends AbstractService {
+class BusinessToCustomerService extends AbstractService
+{
     private string $initiator_name = "";
 
     private string $command_id = "";
@@ -25,7 +26,8 @@ class BusinessToCustomerService extends AbstractService {
      *
      * @return $this
      */
-    public function setInitiatorName(string $initiator_name): self {
+    public function setInitiatorName(string $initiator_name): self
+    {
         $this->initiator_name = $initiator_name;
 
         return $this;
@@ -48,7 +50,8 @@ class BusinessToCustomerService extends AbstractService {
      *
      * @return $this
      */
-    public function setCommandId(string $command_id): self {
+    public function setCommandId(string $command_id): self
+    {
         $this->command_id = $command_id;
 
         return $this;
@@ -65,7 +68,8 @@ class BusinessToCustomerService extends AbstractService {
      *
      * @return $this
      */
-    public function setRemarks(string $remarks): self {
+    public function setRemarks(string $remarks): self
+    {
         $this->remarks = $remarks;
 
         return $this;
@@ -82,7 +86,8 @@ class BusinessToCustomerService extends AbstractService {
      *
      * @return $this
      */
-    public function setOccasion(string $occasion): self {
+    public function setOccasion(string $occasion): self
+    {
         $this->occasion = $occasion;
 
         return $this;
@@ -173,7 +178,8 @@ class BusinessToCustomerService extends AbstractService {
      *
      * @return $this
      */
-    public function setAmount(int $amount): self {
+    public function setAmount(int $amount): self
+    {
         $this->amount = $amount;
 
         return $this;
@@ -189,7 +195,8 @@ class BusinessToCustomerService extends AbstractService {
      *
      * @return self
      */
-    public function setPhoneNumber(string $phone_number): self {
+    public function setPhoneNumber(string $phone_number): self
+    {
         $this->phone_number = $phone_number;
 
         return $this;

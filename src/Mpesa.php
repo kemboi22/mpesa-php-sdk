@@ -15,7 +15,8 @@ use Kemboielvis\MpesaSdkPhp\Services\TransactionStatusService;
 /**
  * Main M-Pesa SDK class.
  */
-class Mpesa {
+class Mpesa
+{
     private MpesaConfig $config;
 
     private MpesaInterface $client;
@@ -45,7 +46,8 @@ class Mpesa {
      *
      * @return self
      */
-    public function setCredentials(string $consumerKey, string $consumerSecret, string $environment = 'sandbox'): self {
+    public function setCredentials(string $consumerKey, string $consumerSecret, string $environment = 'sandbox'): self
+    {
         $this->config = new MpesaConfig($consumerKey, $consumerSecret, $environment);
         $this->client = new ApiClient($this->config);
 
@@ -59,7 +61,8 @@ class Mpesa {
      *
      * @return self
      */
-    public function setBusinessCode(string $businessCode): self {
+    public function setBusinessCode(string $businessCode): self
+    {
         $this->config->setBusinessCode($businessCode);
 
         return $this;
@@ -72,7 +75,8 @@ class Mpesa {
      *
      * @return self
      */
-    public function setPassKey(string $passKey): self {
+    public function setPassKey(string $passKey): self
+    {
         $this->config->setPassKey($passKey);
 
         return $this;
@@ -83,7 +87,8 @@ class Mpesa {
      *
      * @return StkService
      */
-    public function stk(): StkService {
+    public function stk(): StkService
+    {
         return new StkService($this->config, $this->client);
     }
 
@@ -92,7 +97,8 @@ class Mpesa {
      *
      * @return CustomerToBusinessService
      */
-    public function customerToBusiness(): CustomerToBusinessService {
+    public function customerToBusiness(): CustomerToBusinessService
+    {
         return new CustomerToBusinessService($this->config, $this->client);
     }
 
@@ -101,7 +107,8 @@ class Mpesa {
      *
      * @return BusinessToCustomerService
      */
-    public function businessToCustomer(): BusinessToCustomerService {
+    public function businessToCustomer(): BusinessToCustomerService
+    {
         return new BusinessToCustomerService($this->config, $this->client);
     }
 
@@ -110,7 +117,8 @@ class Mpesa {
      *
      * @return AccountBalanceService
      */
-    public function accountBalance(): AccountBalanceService {
+    public function accountBalance(): AccountBalanceService
+    {
         return new AccountBalanceService($this->config, $this->client);
     }
 
@@ -119,7 +127,8 @@ class Mpesa {
      *
      * @return TransactionStatusService
      */
-    public function transactionStatus(): TransactionStatusService {
+    public function transactionStatus(): TransactionStatusService
+    {
         return new TransactionStatusService($this->config, $this->client);
     }
 
@@ -128,7 +137,8 @@ class Mpesa {
      *
      * @return ReversalService
      */
-    public function reversal(): ReversalService {
+    public function reversal(): ReversalService
+    {
         return new ReversalService($this->config, $this->client);
     }
 }

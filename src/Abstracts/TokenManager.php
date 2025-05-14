@@ -5,7 +5,8 @@ namespace Kemboielvis\MpesaSdkPhp\Abstracts;
 /**
  * Auth token manager for M-Pesa API.
  */
-class TokenManager {
+class TokenManager
+{
     private string $consumerKey;
 
     private string $consumerSecret;
@@ -16,7 +17,8 @@ class TokenManager {
 
     private string $tokenCacheFile;
 
-    public function __construct(MpesaConfig $config) {
+    public function __construct(MpesaConfig $config)
+    {
         $this->consumerKey = $config->getConsumerKey();
         $this->consumerSecret = $config->getConsumerSecret();
         $this->baseUrl = $config->getBaseUrl();
@@ -30,7 +32,8 @@ class TokenManager {
      *
      * @throws \RuntimeException If token retrieval fails
      */
-    public function getToken(): string {
+    public function getToken(): string
+    {
         // Try to get cached token first
         $cachedToken = $this->getCachedToken();
         if ($cachedToken) {
@@ -77,7 +80,8 @@ class TokenManager {
      *
      * @return string|null The cached token or null if expired/invalid
      */
-    private function getCachedToken(): ?string {
+    private function getCachedToken(): ?string
+    {
         if (! file_exists($this->tokenCacheFile)) {
             return null;
         }
@@ -98,7 +102,8 @@ class TokenManager {
      * @param string $token     The token to cache
      * @param int    $expiresIn Seconds until expiration
      */
-    private function cacheToken(string $token, int $expiresIn): void {
+    private function cacheToken(string $token, int $expiresIn): void
+    {
         $cacheData = [
             'token' => $token,
             'expires_at' => time() + $expiresIn,
@@ -111,7 +116,8 @@ class TokenManager {
     /**
      * Clear the token cache.
      */
-    public function clearCache(): void {
+    public function clearCache(): void
+    {
         if (file_exists($this->tokenCacheFile)) {
             unlink($this->tokenCacheFile);
         }
