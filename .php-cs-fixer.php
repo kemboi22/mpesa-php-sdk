@@ -44,12 +44,7 @@ return (new PhpCsFixer\Config())
         'control_structure_continuation_position' => [
             'position' => 'same_line',
         ],
-        'braces_position' => [
-            'control_structures_opening_brace' => 'same_line',
-            'functions_opening_brace' => 'same_line',
-            'anonymous_functions_opening_brace' => 'same_line',
-            'classes_opening_brace' => 'same_line',
-        ],
+        'braces' => ['position_after_functions_and_oop_constructs' => 'next'],
         'single_line_comment_style' => [
             'comment_types' => ['hash'],
         ],
