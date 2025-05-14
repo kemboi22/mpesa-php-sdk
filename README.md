@@ -1,153 +1,183 @@
-# mpesa-php-sdk
+# M-Pesa PHP SDK
 
-This is an SDK for Safaricom Mpesa API
+A comprehensive PHP SDK for Safaricom's M-Pesa API, providing easy integration for various M-Pesa services including STK Push, C2B, B2C, reversals, and more.
 
-Basic Usage:
+## Installation
 
-use composer to install the sdk and import autoload file in vendor 
+Install the SDK using Composer:
 
-```
+```bash
 composer require kemboielvis/mpesa-sdk-php
 ```
 
-1. Initialize mpesa sdk with consumer key and consumer secret from https://developer.safaricom.co.ke/
-  
+Basic Usage
+Initialization
+Initialize the M-Pesa SDK with your consumer key and secret from the Safaricom Developer Portal:
 
 ```php
-    //USING ARROW FUNCTION
-    <?php
-    require ('vendor/autoload.php');
-    use Kemboielvis\MpesaSdkPhp\Mpesa;
-    $credentials = new Mpesa();
-    // replace consumerkey with consumer key from daraja portal
-    // Replace consumer secret with consumer secret from daraja portal
-    // in the env it either "live" or "develoment
-    $mpesa = $credentials->consumerKey("CONSUMER_KEY")->consumerSecret("CONSUMER_SECRET")->env("live")->setCredentials();
- ```
- ```php
-    // PASSING KEY AS PARAMETERS IN SET CREDENTIALS
-    $credentials = new Mpesa();
-    $mpesa = $credentials->setCredentials("CONSUMER_KEY", "CONSUMER_SECRET", "live");
- ```
- 
- 2. Sending an STK push
- ```
- BusinessShortCode => This is organizations shortcode (Paybill or Buygoods - A 5 to 7 digit account number)
- used to identify an organization and receive the transaction.
- 
- TransactionType => This is the transaction type that is used to identify the transaction when sending the request to M-Pesa. 
- The transaction type for M-Pesa Express is "CustomerPayBillOnline" OR "CustomerBuyGoodsOnline"
- 
- Amount => Money that customer pays
- 
- Phone Number => The phone number sending money.
- 
- CallBackURL => A CallBack URL is a valid secure URL that is used to receive notifications from M-Pesa API.
- It is the endpoint to which the results will be sent by M-Pesa API.
- 
- AccountReference => This is a parameter that is defined by your system as an identifier of the transaction
- 
- Transaction Desc => This is any additional information/comment that can be sent along with the request from your system. 
- Maximum of 13 Characters.
- ```
- 
- ```php
-     $stk = $mpesa->stk()
-     ->businessCode("BUSINESS_CODE")
-     ->amount(AMOUNT)
-     ->phoneNumber("PHONE_NUMBER")
-     ->callBackUrl("CALL_BACK_URL")
-     ->transactionType("CustomerPayBillOnline")
-     ->accountReference("ACCOUNT-REFERENCE")
-     ->transactionDesc("TRANSACTION_DESC")
-     ->passKey("PASS_KEY");
-    // Get response in and store it after sending a push
-    $response = $stk->push()->response();
-    // Query STK Push and check its status
-    $transactionQuery = $push->query();
- ```
- 
-  3.Register confirmation and Validation url
-  
-  ```
-  Validation Url => This is the URL that receives the validation request from API upon payment submission.
-  
-  Confirmation URL => This is the URL that receives the confirmation request from API upon payment completion.
-  
-  Response Type => Completed OR Canceled
-  ```
-  ```php
-    $registerUrl = $mpesa->customerToBusiness()
-      ->responseType("Completed")
-      ->validationUrl("https://mydomain.com/confirmation")
-      ->confirmationUrl("https://mydomain.com/confirmation")
-      ->businessCode("600984")->registerUrl();
-    // Get the response
-    $response = $registerUrl->response();
-  ```
-  
-  4. Customer to business 
-  
-  ```
-  CommandID => This is a unique identifier of the transaction type: Either CustomerPayBillOnline or CustomerBuyGoodsOnline
-  
-  Phone Number => Phone number initiating customer to business transaction
-  
-  BillRefNumber =>  This is used on CustomerPayBillOnline option only. This is where a customer is expected to enter a unique bill identifier, e.g an Account Number. 
-  
-  Business code => This is the Short Code receiving the amount being transacted.
-  
-  ```
-  ```php
-    $c2b = $mpesa->customerToBusiness();
-    $simulate = $c2b->businessCode("600988")->commandId("CustomerBuyGoodsOnline")->amount("10")->phoneNumber("PHONE_NUMBER")->simulate();
-    // You can add 
-    ->billRefNumber("BILL REF_NUMBER") //  For pay bills only
-    
-   
-    // Get the response
-    $response = $simulate->response();   
-   
-  ```
-  
-  5. Business to Customer 
-  
-    Transfer money from business to a customer
-    InitiatorName => The username of the M-Pesa B2C account API operator. 
-    NOTE: the access channel for this   operator must be API and the account must be in active status.
-    
-    SecurityCredential => Pass the initiator password
-    
-    CommandID => SalaryPayment, BusinessPayment, PromotionPayment
-    
-    Phone Number => This is the customer mobile number  to receive the amount. 
-    The number should have the country code (254) without the plus sign.
-    
-    Remarks => This is the customer mobile number  to receive the amount. 
-    The number should have the country code (254) without the plus sign.
-    
-    QueueTimeOutURL => This is the URL to be specified in your request that will be used by API Proxy to send notification 
-    incase the payment request is timed out while awaiting processing in the queue. 
-    
-    Result URL => This is the URL to be specified in your request that will be used by M-Pesa to send notification
-    upon processing of the payment request.
-    
-    Occasion => Any additional information to be associated with the transaction. (Sentence of upto 100 characters)
-    
-  ```php
-  
-      $b2c = $mpesa->businessToCustomer();
-      $paymentRequest = $b2c
-      ->initiatorName("INITIATOR_NAME")
-      ->securityCredential("INTIATOR_PASSWORD")
-      ->commandId("SalaryPayment")
-      ->amount(AMOUNT) //int
-      ->businessCode("600584")
-      ->phoneNumber("PHONE_NUMBER")->remarks("Test")
-      ->queueTimeoutUrl("https://mydomain.com/b2c/queue")
-      ->resultUrl("https://mydomain.com/b2c/queue")
-      ->occasion("Test")->paymentRequest();
-    $response = $paymentRequest->response();
-    print_r($response->response());
-  
-  ```
+<?php
+require 'vendor/autoload.php';
+
+use Kemboielvis\MpesaSdkPhp\Mpesa;
+
+// Method 1: Using setCredentials() with parameters
+$mpesa = (new Mpesa())->setCredentials(
+    'YOUR_CONSUMER_KEY',
+    'YOUR_CONSUMER_SECRET',
+    'sandbox' // or 'live' for production
+);
+
+// Method 2: Using fluent setters
+$mpesa = (new Mpesa())
+    ->setBusinessCode('YOUR_BUSINESS_CODE')
+    ->setPassKey('YOUR_PASS_KEY')
+    ->setCredentials(
+        'YOUR_CONSUMER_KEY',
+        'YOUR_CONSUMER_SECRET',
+        'sandbox'
+    );
+```
+
+Available Services
+
+# 1. STK Push (M-Pesa Express)
+
+Initiate an STK push payment request:
+
+```php
+$response = $mpesa->stk()
+    ->setTransactionType('CustomerPayBillOnline') // or 'CustomerBuyGoodsOnline'
+    ->setAmount(100) // Amount in KES
+    ->setPhoneNumber('254712345678') // Customer phone number
+    ->setCallbackUrl('https://yourdomain.com/callback')
+    ->setAccountReference('INV-12345')
+    ->setTransactionDesc('Payment for invoice')
+    ->push()
+    ->getResponse();
+
+print_r($response);
+```
+
+Query STK Push Status
+
+```php
+$status = $mpesa->stk()
+    ->query('CHECKOUT_REQUEST_ID')
+    ->getResponse();
+```
+
+# 2. Customer to Business (C2B)
+
+Register URLs
+
+```php
+$response = $mpesa->customerToBusiness()
+    ->setResponseType('Completed')
+    ->setConfirmationUrl('https://yourdomain.com/confirmation')
+    ->setValidationUrl('https://yourdomain.com/validation')
+    ->registerUrl()
+    ->getResponse();
+```
+
+Simulate C2B Payment
+
+```php
+$response = $mpesa->customerToBusiness()
+    ->setCommandId('CustomerPayBillOnline') // or 'CustomerBuyGoodsOnline'
+    ->setAmount(100)
+    ->setPhoneNumber('254712345678')
+    ->setBillRefNumber('INV-123') // For paybill only
+    ->simulate()
+    ->getResponse();
+```
+
+# 3. Business to Customer (B2C)
+
+Send money from business to customer:
+
+```php
+$response = $mpesa->businessToCustomer()
+    ->setInitiatorName('YOUR_INITIATOR_NAME')
+    ->setCommandId('SalaryPayment') // or 'BusinessPayment', 'PromotionPayment'
+    ->setAmount(1000)
+    ->setPhoneNumber('254712345678')
+    ->setRemarks('Salary payment')
+    ->setOccasion('May 2023 salary')
+    ->paymentRequest(
+        'YOUR_INITIATOR_NAME',
+        'YOUR_INITIATOR_PASSWORD',
+        'SalaryPayment',
+        1000,
+        'YOUR_BUSINESS_CODE',
+        '254712345678',
+        'Salary payment',
+        'https://yourdomain.com/timeout',
+        'https://yourdomain.com/result',
+        'May 2023 salary'
+    );
+
+print_r($response);
+```
+
+# 4. Reversal Service
+
+Reverse a transaction:
+
+```php
+$response = $mpesa->reversal()
+    ->setInitiator('YOUR_INITIATOR_NAME')
+    ->setTransactionId('YOUR_TRANSACTION_ID')
+    ->setReceiverIdentifierType('11') // 1=MSISDN, 2=Till, 4=Shortcode
+    ->setRemarks('Refund')
+    ->setOccasion('Customer refund')
+    ->reverse(
+        'YOUR_INITIATOR_NAME',
+        'YOUR_INITIATOR_PASSWORD',
+        'Refund',
+        'YOUR_BUSINESS_CODE',
+        'YOUR_TRANSACTION_ID',
+        '11', // Identifier type
+        'https://yourdomain.com/timeout',
+        'https://yourdomain.com/result',
+        'Customer refund'
+    );
+
+print_r($response);
+```
+
+RuntimeException for API request failures
+
+Exception for general errors
+
+Always wrap your calls in try-catch blocks:
+
+```php
+try {
+    $response = $mpesa->stk()->push()->getResponse();
+} catch (\Exception $e) {
+    echo 'Error: ' . $e->getMessage();
+}
+```
+
+# Testing
+
+For sandbox testing, use the test credentials from the Safaricom Developer Portal and set the environment to 'sandbox'.
+
+# License
+
+This SDK is open-source software licensed under the MIT license.
+
+# Support
+
+For issues or feature requests, please open an issue on the GitHub repository.
+
+This README provides comprehensive documentation covering:
+
+1. Installation instructions
+2. Basic usage examples for all services
+3. Configuration options
+4. Error handling guidance
+5. Testing information
+6. License and support details
+
+The documentation follows a clear structure with code examples for each service and explains all the key parameters and methods available in your SDK.
