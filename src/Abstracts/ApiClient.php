@@ -3,11 +3,12 @@
 namespace Kemboielvis\MpesaSdkPhp\Abstracts;
 
 /**
- * HTTP client for M-Pesa API
+ * HTTP client for M-Pesa API.
  */
 class ApiClient implements MpesaInterface
 {
     private MpesaConfig $config;
+
     private TokenManager $tokenManager;
 
     public function __construct(MpesaConfig $config)
@@ -17,11 +18,13 @@ class ApiClient implements MpesaInterface
     }
 
     /**
-     * Execute a request to the M-Pesa API
+     * Execute a request to the M-Pesa API.
      *
-     * @param array $data The request payload
+     * @param array  $data     The request payload
      * @param string $endpoint The API endpoint
+     *
      * @return object The API response
+     *
      * @throws \RuntimeException If the request fails
      */
     public function executeRequest(array $data, string $endpoint): object
@@ -51,6 +54,7 @@ class ApiClient implements MpesaInterface
         // Handle unauthorized error
         if (401 == $httpCode) {
             $this->tokenManager->clearCache();
+
             return $this->retryRequest($data, $endpoint);
         }
 
@@ -67,10 +71,11 @@ class ApiClient implements MpesaInterface
     }
 
     /**
-     * Retry a request after token refresh
+     * Retry a request after token refresh.
      *
-     * @param array $data The request payload
+     * @param array  $data     The request payload
      * @param string $endpoint The API endpoint
+     *
      * @return object The API response
      */
     private function retryRequest(array $data, string $endpoint): object

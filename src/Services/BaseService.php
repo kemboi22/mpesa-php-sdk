@@ -6,11 +6,12 @@ use Kemboielvis\MpesaSdkPhp\Abstracts\MpesaConfig;
 use Kemboielvis\MpesaSdkPhp\Abstracts\MpesaInterface;
 
 /**
- * Abstract base service class
+ * Abstract base service class.
  */
 abstract class BaseService
 {
     protected MpesaConfig $config;
+
     protected MpesaInterface $client;
 
     public function __construct(MpesaConfig $config, MpesaInterface $client)
@@ -20,7 +21,7 @@ abstract class BaseService
     }
 
     /**
-     * Generate a timestamp in the required format
+     * Generate a timestamp in the required format.
      *
      * @return string The timestamp
      */
@@ -30,7 +31,7 @@ abstract class BaseService
     }
 
     /**
-     * Generate a password for secure API calls
+     * Generate a password for secure API calls.
      *
      * @return string The password
      */
@@ -44,14 +45,16 @@ abstract class BaseService
     }
 
     /**
-     * Clean a phone number for API calls
+     * Clean a phone number for API calls.
      *
-     * @param string $phone The phone number
+     * @param string $phone       The phone number
      * @param string $countryCode The country code
+     *
      * @return string The cleaned phone number, or an empty string/array if the phone number is invalid
+     *
      * @throws \Exception
      */
-    function cleanPhoneNumber(string $phone, string $countryCode = '254'): string
+    public function cleanPhoneNumber(string $phone, string $countryCode = '254'): string
     {
         if (empty($phone)) {
             throw new \RuntimeException('Phone number cannot be null!');
@@ -77,6 +80,4 @@ abstract class BaseService
         // Otherwise, just clean to digits
         return preg_replace('/\D/', '', $phone);
     }
-
-
 }

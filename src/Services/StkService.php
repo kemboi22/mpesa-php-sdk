@@ -3,93 +3,112 @@
 namespace Kemboielvis\MpesaSdkPhp\Services;
 
 /**
- * STK Push service
+ * STK Push service.
  */
 class StkService extends BaseService
 {
     private string $transactionType = '';
+
     private string $amount = '';
+
     private string $phoneNumber = '';
+
     private string $callbackUrl = '';
+
     private string $accountReference = '';
+
     private string $transactionDesc = '';
+
     private ?object $response = null;
 
     /**
-     * Set the transaction type
+     * Set the transaction type.
      *
      * @param string $type Transaction type (CustomerPayBillOnline|CustomerBuyGoodsOnline)
+     *
      * @return self
      */
     public function setTransactionType(string $type): self
     {
         $this->transactionType = $type;
+
         return $this;
     }
 
     /**
-     * Set the amount
+     * Set the amount.
      *
      * @param int|string $amount The amount
+     *
      * @return self
      */
     public function setAmount($amount): self
     {
         $this->amount = (string)$amount;
+
         return $this;
     }
 
     /**
-     * Set the phone number
+     * Set the phone number.
      *
      * @param string $phoneNumber The phone number
+     *
      * @return self
+     *
      * @throws \Exception
      */
     public function setPhoneNumber(string $phoneNumber): self
     {
         $this->phoneNumber = $this->cleanPhoneNumber($phoneNumber);
+
         return $this;
     }
 
     /**
-     * Set the callback URL
+     * Set the callback URL.
      *
      * @param string $url The callback URL
+     *
      * @return self
      */
     public function setCallbackUrl(string $url): self
     {
         $this->callbackUrl = $url;
+
         return $this;
     }
 
     /**
-     * Set the account reference
+     * Set the account reference.
      *
      * @param string $reference The account reference
+     *
      * @return self
      */
     public function setAccountReference(string $reference): self
     {
         $this->accountReference = $reference;
+
         return $this;
     }
 
     /**
-     * Set the transaction description
+     * Set the transaction description.
      *
      * @param string $description The transaction description
+     *
      * @return self
      */
     public function setTransactionDesc(string $description): self
     {
         $this->transactionDesc = $description;
+
         return $this;
     }
 
     /**
-     * Validate required parameters before push
+     * Validate required parameters before push.
      *
      * @throws \InvalidArgumentException If required parameters are missing
      */
@@ -117,9 +136,10 @@ class StkService extends BaseService
     }
 
     /**
-     * Initiate an STK push request
+     * Initiate an STK push request.
      *
      * @return self
+     *
      * @throws \InvalidArgumentException If required parameters are missing
      */
     public function push(): self
@@ -146,14 +166,15 @@ class StkService extends BaseService
     }
 
     /**
-     * Get the checkout request ID
+     * Get the checkout request ID.
      *
      * @return string The checkout request ID
+     *
      * @throws \RuntimeException If no response is available
      */
     public function getCheckoutRequestId(): string
     {
-        if (!$this->response || !isset($this->response->CheckoutRequestID)) {
+        if (! $this->response || ! isset($this->response->CheckoutRequestID)) {
             throw new \RuntimeException('No STK push response available');
         }
 
@@ -161,10 +182,12 @@ class StkService extends BaseService
     }
 
     /**
-     * Query the status of an STK push transaction
+     * Query the status of an STK push transaction.
      *
      * @param string|null $checkoutRequestId Optional checkout request ID
+     *
      * @return object The query response
+     *
      * @throws \RuntimeException If no checkout request ID is available
      */
     public function query(?string $checkoutRequestId = null): object
@@ -182,7 +205,7 @@ class StkService extends BaseService
     }
 
     /**
-     * Get the response
+     * Get the response.
      *
      * @return object|null The response
      */

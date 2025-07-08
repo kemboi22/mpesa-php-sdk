@@ -3,18 +3,26 @@
 namespace Kemboielvis\MpesaSdkPhp\Abstracts;
 
 /**
- * Configuration class for M-Pesa SDK
+ * Configuration class for M-Pesa SDK.
  */
 class MpesaConfig
 {
     private string $consumerKey;
+
     private string $consumerSecret;
+
     private string $environment;
+
     private string $baseUrl;
+
     private string $businessCode;
+
     private ?string $passKey;
+
     private string $security_credential;
+
     private string $queue_timeout_url;
+
     private string $result_url;
 
     public function __construct(
@@ -26,8 +34,7 @@ class MpesaConfig
         ?string $security_credential = null,
         ?string $queue_timeout_url = null,
         ?string $result_url = null
-    )
-    {
+    ) {
         $this->consumerKey = $consumerKey;
         $this->consumerSecret = $consumerSecret;
         $this->environment = strtolower($environment);
@@ -69,6 +76,7 @@ class MpesaConfig
     public function setBusinessCode(string $businessCode): self
     {
         $this->businessCode = $businessCode;
+
         return $this;
     }
 
@@ -80,6 +88,7 @@ class MpesaConfig
     public function setPassKey(string $passKey): self
     {
         $this->passKey = $passKey;
+
         return $this;
     }
 
@@ -105,7 +114,7 @@ class MpesaConfig
      *
      * @return self
      */
-    public function setSecurityCredential(string $initiator_password):self
+    public function setSecurityCredential(string $initiator_password): self
     {
         $initiator_password1 = $initiator_password;
 
@@ -114,6 +123,7 @@ class MpesaConfig
         $ivlen = openssl_cipher_iv_length($method);
         $iv = openssl_random_pseudo_bytes($ivlen);
         $this->security_credential = base64_encode($iv . openssl_encrypt("{$initiator_password1} + Certificate", $method, $password, 0, $iv));
+
         return $this;
     }
 
@@ -134,6 +144,7 @@ class MpesaConfig
     public function setQueueTimeoutUrl(string $queue_timeout_url): self
     {
         $this->queue_timeout_url = $queue_timeout_url;
+
         return $this;
     }
 
@@ -152,14 +163,15 @@ class MpesaConfig
      * Set the result URL for the API request.
      *
      * @param string $result_url The URL to receive the response from the M-Pesa API.
+     *
      * @return self
      */
-    public function setResultUrl(string $result_url) :self
+    public function setResultUrl(string $result_url): self
     {
         $this->result_url = $result_url;
+
         return $this;
     }
-
 
     /**
      * Gets the result URL for the API request.

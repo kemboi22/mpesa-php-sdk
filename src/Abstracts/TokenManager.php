@@ -3,14 +3,18 @@
 namespace Kemboielvis\MpesaSdkPhp\Abstracts;
 
 /**
- * Auth token manager for M-Pesa API
+ * Auth token manager for M-Pesa API.
  */
 class TokenManager
 {
     private string $consumerKey;
+
     private string $consumerSecret;
+
     private string $baseUrl;
+
     private string $tokenUrl = '/oauth/v1/generate?grant_type=client_credentials';
+
     private string $tokenCacheFile;
 
     public function __construct(MpesaConfig $config)
@@ -22,9 +26,10 @@ class TokenManager
     }
 
     /**
-     * Get a valid authentication token
+     * Get a valid authentication token.
      *
      * @return string The authentication token
+     *
      * @throws \RuntimeException If token retrieval fails
      */
     public function getToken(): string
@@ -54,7 +59,7 @@ class TokenManager
 
         $tokenData = json_decode($response);
 
-        if (!isset($tokenData->access_token)) {
+        if (! isset($tokenData->access_token)) {
             throw new \RuntimeException('Failed to get access token from M-Pesa API');
         }
 
@@ -71,13 +76,13 @@ class TokenManager
     }
 
     /**
-     * Get cached token if valid
+     * Get cached token if valid.
      *
      * @return string|null The cached token or null if expired/invalid
      */
     private function getCachedToken(): ?string
     {
-        if (!file_exists($this->tokenCacheFile)) {
+        if (! file_exists($this->tokenCacheFile)) {
             return null;
         }
 
@@ -92,10 +97,10 @@ class TokenManager
     }
 
     /**
-     * Cache a token
+     * Cache a token.
      *
-     * @param string $token The token to cache
-     * @param int $expiresIn Seconds until expiration
+     * @param string $token     The token to cache
+     * @param int    $expiresIn Seconds until expiration
      */
     private function cacheToken(string $token, int $expiresIn): void
     {
@@ -109,7 +114,7 @@ class TokenManager
     }
 
     /**
-     * Clear the token cache
+     * Clear the token cache.
      */
     public function clearCache(): void
     {

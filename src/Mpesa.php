@@ -13,19 +13,20 @@ use Kemboielvis\MpesaSdkPhp\Services\StkService;
 use Kemboielvis\MpesaSdkPhp\Services\TransactionStatusService;
 
 /**
- * Main M-Pesa SDK class
+ * Main M-Pesa SDK class.
  */
 class Mpesa
 {
     private MpesaConfig $config;
+
     private MpesaInterface $client;
 
     /**
-     * Create a new Mpesa instance
+     * Create a new Mpesa instance.
      *
-     * @param string|null $consumerKey The consumer key
+     * @param string|null $consumerKey    The consumer key
      * @param string|null $consumerSecret The consumer secret
-     * @param string $environment The environment (live or sandbox)
+     * @param string      $environment    The environment (live or sandbox)
      */
     public function __construct(
         string $consumerKey = null,
@@ -37,45 +38,52 @@ class Mpesa
     }
 
     /**
-     * Set the credentials for the M-Pesa API
+     * Set the credentials for the M-Pesa API.
      *
-     * @param string $consumerKey The consumer key
+     * @param string $consumerKey    The consumer key
      * @param string $consumerSecret The consumer secret
-     * @param string $environment The environment (live or sandbox)
+     * @param string $environment    The environment (live or sandbox)
+     *
      * @return self
      */
-    public function setCredentials(string $consumerKey, string $consumerSecret, string $environment = 'sandbox'): self{
+    public function setCredentials(string $consumerKey, string $consumerSecret, string $environment = 'sandbox'): self
+    {
         $this->config = new MpesaConfig($consumerKey, $consumerSecret, $environment);
         $this->client = new ApiClient($this->config);
+
         return $this;
     }
 
     /**
-     * Set the business code
+     * Set the business code.
      *
      * @param string $businessCode The business code
+     *
      * @return self
      */
     public function setBusinessCode(string $businessCode): self
     {
         $this->config->setBusinessCode($businessCode);
+
         return $this;
     }
 
     /**
-     * Set the pass key
+     * Set the pass key.
      *
      * @param string $passKey The pass key
+     *
      * @return self
      */
     public function setPassKey(string $passKey): self
     {
         $this->config->setPassKey($passKey);
+
         return $this;
     }
 
     /**
-     * Get STK push service
+     * Get STK push service.
      *
      * @return StkService
      */
@@ -85,7 +93,7 @@ class Mpesa
     }
 
     /**
-     * Get C2B service
+     * Get C2B service.
      *
      * @return CustomerToBusinessService
      */
@@ -95,7 +103,7 @@ class Mpesa
     }
 
     /**
-     * Get B2C service
+     * Get B2C service.
      *
      * @return BusinessToCustomerService
      */
@@ -105,7 +113,7 @@ class Mpesa
     }
 
     /**
-     * Get account balance service
+     * Get account balance service.
      *
      * @return AccountBalanceService
      */
@@ -115,7 +123,7 @@ class Mpesa
     }
 
     /**
-     * Get transaction status service
+     * Get transaction status service.
      *
      * @return TransactionStatusService
      */
@@ -125,7 +133,7 @@ class Mpesa
     }
 
     /**
-     * Get reversal service
+     * Get reversal service.
      *
      * @return ReversalService
      */

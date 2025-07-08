@@ -3,14 +3,14 @@
 namespace Kemboielvis\MpesaSdkPhp\Services;
 
 /**
- * Base class for other services (simplified implementations)
+ * Base class for other services (simplified implementations).
  */
 abstract class AbstractService extends BaseService
 {
     protected ?object $response = null;
 
     /**
-     * Get the response
+     * Get the response.
      *
      * @return object|null The response
      */
