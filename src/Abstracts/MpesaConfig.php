@@ -49,6 +49,7 @@ class MpesaConfig
         $this->security_credential = $security_credential ?? '';
         $this->queue_timeout_url = $queue_timeout_url ?? '';
         $this->result_url = $result_url ?? '';
+        $this->store_file = $store_file ?? '';
     }
 
     public function getConsumerKey(): string
