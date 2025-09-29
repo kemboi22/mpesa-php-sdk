@@ -49,7 +49,7 @@ class MpesaConfig
         $this->security_credential = $security_credential ?? '';
         $this->queue_timeout_url = $queue_timeout_url ?? '';
         $this->result_url = $result_url ?? '';
-        $this->store_file = $store_file ?? '';
+        $this->store_file = $store_file ?? 'mpesa_api_cache.json';
     }
 
     public function getConsumerKey(): string
@@ -185,5 +185,33 @@ class MpesaConfig
     public function getResultUrl(): string
     {
         return $this->result_url;
+    }
+
+
+
+    /**
+     * Get the file path to store the transaction results.
+     *
+     * The file path is used to store the results of the transaction in a
+     * file. The results are stored in JSON format.
+     *
+     * @return string The file path to store the transaction results.
+     */
+    public function getStoreFile(): string
+    {
+        return $this->store_file;
+    }
+
+    /**
+     * Set the file path to store the transaction results.
+     *
+     * @param string $store_file The file path to store the transaction results.
+     *
+     * @return self
+     */
+    public function setStoreFile(string $store_file): self
+    {
+        $this->store_file = $store_file;
+        return $this;
     }
 }
