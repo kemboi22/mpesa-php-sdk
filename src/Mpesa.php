@@ -11,6 +11,7 @@ use Kemboielvis\MpesaSdkPhp\Services\CustomerToBusinessService;
 use Kemboielvis\MpesaSdkPhp\Services\ReversalService;
 use Kemboielvis\MpesaSdkPhp\Services\StkService;
 use Kemboielvis\MpesaSdkPhp\Services\TransactionStatusService;
+use Kemboielvis\MpesaSdkPhp\Abstracts\TokenManager;
 
 /**
  * Main M-Pesa SDK class.
@@ -40,17 +41,47 @@ class Mpesa
     /**
      * Set the credentials for the M-Pesa API.
      *
-     * @param string $consumerKey    The consumer key
-     * @param string $consumerSecret The consumer secret
-     * @param string $environment    The environment (live or sandbox)
+     * @param string      $consumerKey    The consumer key
+     * @param string      $consumerSecret The consumer secret
+     * @param string      $environment    The environment (live or sandbox)
+     * @param string|null $storeFile      Optional: token store file path; if null, keep current
      *
      * @return self
      */
-    public function setCredentials(string $consumerKey, string $consumerSecret, string $environment = 'sandbox'): self
+    public function setCredentials(string $consumerKey, string $consumerSecret, string $environment = 'sandbox', ?string $storeFile = null): self
     {
-        $this->config = new MpesaConfig($consumerKey, $consumerSecret, $environment);
+        $effectiveStoreFile = $storeFile ?? $this->config->getStoreFile();
+        $this->config = new MpesaConfig($consumerKey, $consumerSecret, $environment, null, null, null, null, null, $effectiveStoreFile);
         $this->client = new ApiClient($this->config);
 
+        return $this;
+    }
+
+    /**
+     * Set the file to store the token and refresh the client so it takes effect immediately.
+     *
+     * @param string $storeFile The file path
+     * @return self
+     */
+    public function setStoreFile(string $storeFile): self
+    {
+        $this->config->setStoreFile($storeFile);
+        // Re-instantiate client so TokenManager picks the new path
+        $this->client = new ApiClient($this->config);
+        return $this;
+    }
+
+    /**
+     * Optionally enable/disable debug logging at runtime.
+     *
+     * @param bool $debug
+     * @return self
+     */
+    public function setDebug(bool $debug): self
+    {
+        $this->config->setDebug($debug);
+        // Re-instantiate client so TokenManager sees new debug setting
+        $this->client = new ApiClient($this->config);
         return $this;
     }
 
@@ -140,5 +171,24 @@ class Mpesa
     public function reversal(): ReversalService
     {
         return new ReversalService($this->config, $this->client);
+    }
+
+    /**
+     * Clear the cached auth token. Forces next call to fetch and write to current store file.
+     *
+     * @return self
+     */
+    public function clearTokenCache(): self
+    {
+        (new TokenManager($this->config))->clearCache();
+        return $this;
+    }
+
+    /**
+     * Get the resolved token cache file path used by the current configuration.
+     */
+    public function getResolvedStoreFilePath(): string
+    {
+        return (new TokenManager($this->config))->getCacheFilePath();
     }
 }

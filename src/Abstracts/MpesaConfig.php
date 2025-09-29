@@ -27,6 +27,8 @@ class MpesaConfig
 
     private string $store_file;
 
+    private bool $debug = false;
+
     public function __construct(
         string  $consumerKey,
         string  $consumerSecret,
@@ -212,6 +214,17 @@ class MpesaConfig
     public function setStoreFile(string $store_file): self
     {
         $this->store_file = $store_file;
+        return $this;
+    }
+
+    public function getDebug(): bool
+    {
+        return $this->debug;
+    }
+
+    public function setDebug(bool $debug): self
+    {
+        $this->debug = $debug;
         return $this;
     }
 }
