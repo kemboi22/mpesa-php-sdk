@@ -22,7 +22,7 @@ class TokenManager
         $this->consumerKey = $config->getConsumerKey();
         $this->consumerSecret = $config->getConsumerSecret();
         $this->baseUrl = $config->getBaseUrl();
-        $this->tokenCacheFile = sys_get_temp_dir() . $config->getStoreFile();
+        $this->tokenCacheFile = sys_get_temp_dir() .'/'. $config->getStoreFile();
     }
 
     /**
