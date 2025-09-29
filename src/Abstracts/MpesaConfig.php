@@ -25,6 +25,8 @@ class MpesaConfig
 
     private string $result_url;
 
+    private string $store_file;
+
     public function __construct(
         string  $consumerKey,
         string  $consumerSecret,
