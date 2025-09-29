@@ -74,6 +74,13 @@ class MpesaConfig
         return $this->baseUrl;
     }
 
+    // Allow overriding base URL (useful for tests or custom gateways)
+    public function setBaseUrl(string $baseUrl): self
+    {
+        $this->baseUrl = rtrim($baseUrl, '/');
+        return $this;
+    }
+
     public function getBusinessCode(): string
     {
         return $this->businessCode;
