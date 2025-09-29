@@ -35,7 +35,8 @@ class MpesaConfig
         ?string $passKey = null,
         ?string $security_credential = null,
         ?string $queue_timeout_url = null,
-        ?string $result_url = null
+        ?string $result_url = null,
+        ?string $store_file = null,
     ) {
         $this->consumerKey = $consumerKey;
         $this->consumerSecret = $consumerSecret;
