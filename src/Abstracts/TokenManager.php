@@ -18,6 +18,7 @@ class TokenManager
     private string $tokenCacheFile;
 
     private bool $debug = false;
+    private MpesaConfig $config;
 
     public function __construct(MpesaConfig $config)
     {
@@ -25,6 +26,7 @@ class TokenManager
         $this->consumerSecret = $config->getConsumerSecret();
         $this->baseUrl = $config->getBaseUrl();
         $this->debug = method_exists($config, 'getDebug') ? (bool) $config->getDebug() : false;
+        $this->config = $config;
 
         // Resolve the token cache path from config and ensure directory exists
         $this->tokenCacheFile = $this->resolveCachePath($config->getStoreFile());
@@ -44,7 +46,7 @@ class TokenManager
 
         // If empty, default to system temp directory with default filename
         if ($path === '') {
-            return rtrim(sys_get_temp_dir(), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . 'mpesa_api_cache.json';
+            return rtrim(sys_get_temp_dir(), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . $this->config->getEncryptedFileName();
         }
 
         // If path looks like a stream or protocol, use as-is (e.g., php://, file://)
