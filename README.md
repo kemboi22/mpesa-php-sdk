@@ -1,18 +1,19 @@
 # M-Pesa PHP SDK
 
-A comprehensive PHP SDK for Safaricom's M-Pesa API, providing easy integration for various M-Pesa services including STK Push, C2B, B2C, reversals, and more.
+A PHP SDK for Safaricom M-Pesa APIs with batteries included: STK Push, C2B, B2C, Reversals, Transaction Status, and more. Now with multi-process safe token caching (lock + atomic writes).
+
+## Requirements
+- PHP 8.0+
+- ext-curl, ext-openssl (installed by default on most PHP builds)
+- Composer for library installation
 
 ## Installation
-
-Install the SDK using Composer:
 
 ```bash
 composer require kemboielvis/mpesa-sdk-php
 ```
 
-Basic Usage
-Initialization
-Initialize the M-Pesa SDK with your consumer key and secret from the Safaricom Developer Portal:
+## Quick start
 
 ```php
 <?php
@@ -20,58 +21,76 @@ require 'vendor/autoload.php';
 
 use Kemboielvis\MpesaSdkPhp\Mpesa;
 
-// Method 1: Using setCredentials() with parameters
-$mpesa = (new Mpesa())->setCredentials(
-    'YOUR_CONSUMER_KEY',
-    'YOUR_CONSUMER_SECRET',
-    'sandbox' // or 'live' for production
-);
+// Option A: via constructor
+$mpesa = new Mpesa('YOUR_CONSUMER_KEY', 'YOUR_CONSUMER_SECRET', 'sandbox'); // or 'live'
 
-// Method 2: Using fluent setters
+// Option B: via setCredentials (also allows specifying a custom token store file)
 $mpesa = (new Mpesa())
-    ->setBusinessCode('YOUR_BUSINESS_CODE')
-    ->setPassKey('YOUR_PASS_KEY')
-    ->setCredentials(
-        'YOUR_CONSUMER_KEY',
-        'YOUR_CONSUMER_SECRET',
-        'sandbox'
-    );
-```
+    ->setCredentials('YOUR_CONSUMER_KEY', 'YOUR_CONSUMER_SECRET', 'sandbox', /* optional */ 'mpesa_api_cache.json');
 
-Available Services
+// Optional: choose where to store the token cache file
+// If only a filename is provided, it's stored under the system temp directory.
+$mpesa->setStoreFile('mpesa_api_cache.json');
 
-# 1. STK Push (M-Pesa Express)
+// Optional: enable debug logging (prints to PHP error_log)
+$mpesa->setDebug(true);
 
-Initiate an STK push payment request:
-
-```php
-$response = $mpesa->stk()
+// Example: STK Push
+$response = $mpesa->setBusinessCode('YOUR_TILL_OR_SHORTCODE')
+    ->setPassKey('YOUR_LNM_PASSKEY')
+    ->stk()
     ->setTransactionType('CustomerPayBillOnline') // or 'CustomerBuyGoodsOnline'
-    ->setAmount(100) // Amount in KES
-    ->setPhoneNumber('254712345678') // Customer phone number
+    ->setAmount(100)
+    ->setPhoneNumber('254712345678')
     ->setCallbackUrl('https://yourdomain.com/callback')
     ->setAccountReference('INV-12345')
-    ->setTransactionDesc('Payment for invoice')
+    ->setTransactionDesc('Payment for invoice INV-12345')
     ->push()
     ->getResponse();
 
 print_r($response);
 ```
 
-Query STK Push Status
+## Multi-process safe token cache
+The SDK caches the OAuth access token on disk to minimize network calls. The cache is safe for concurrent use by multiple PHP processes:
+- A lock file prevents the "thundering herd" when the token needs refreshing.
+- Cache writes are atomic (temp file + rename) to avoid partial or corrupt files.
+- Malformed/expired cache is ignored and re-fetched safely by a single lock holder.
 
+Details:
+- Default cache name: `mpesa_api_cache.json`. If you pass only a filename, it is stored under the system temp directory. You can provide an absolute or relative path.
+- Lock file location: same directory as the cache file with `.lock` suffix. For stream paths (e.g., `php://memory`), the lock is stored in the system temp directory.
+- Methods:
+  - `Mpesa::setStoreFile(string $path)` — sets the token cache file and refreshes the internal client.
+  - `Mpesa::clearTokenCache()` — clears the current token cache.
+  - `Mpesa::getResolvedStoreFilePath()` — returns the resolved absolute path the SDK uses for the cache.
+  - `Mpesa::setDebug(bool $on)` — enable debug logging to troubleshoot token flow.
+
+## Services and examples
+
+- STK Push (Lipa Na M-Pesa)
+```php
+$resp = $mpesa->stk()
+    ->setTransactionType('CustomerPayBillOnline')
+    ->setAmount(100)
+    ->setPhoneNumber('254712345678')
+    ->setCallbackUrl('https://yourdomain.com/callback')
+    ->setAccountReference('INV-12345')
+    ->setTransactionDesc('Payment for invoice')
+    ->push()
+    ->getResponse();
+```
+
+- Query STK Push status
 ```php
 $status = $mpesa->stk()
     ->query('CHECKOUT_REQUEST_ID')
     ->getResponse();
 ```
 
-# 2. Customer to Business (C2B)
-
-Register URLs
-
+- Customer to Business (C2B) — Register URLs
 ```php
-$response = $mpesa->customerToBusiness()
+$resp = $mpesa->customerToBusiness()
     ->setResponseType('Completed')
     ->setConfirmationUrl('https://yourdomain.com/confirmation')
     ->setValidationUrl('https://yourdomain.com/validation')
@@ -79,26 +98,22 @@ $response = $mpesa->customerToBusiness()
     ->getResponse();
 ```
 
-Simulate C2B Payment
-
+- C2B — Simulate payment
 ```php
-$response = $mpesa->customerToBusiness()
-    ->setCommandId('CustomerPayBillOnline') // or 'CustomerBuyGoodsOnline'
+$resp = $mpesa->customerToBusiness()
+    ->setCommandId('CustomerPayBillOnline')
     ->setAmount(100)
     ->setPhoneNumber('254712345678')
-    ->setBillRefNumber('INV-123') // For paybill only
+    ->setBillRefNumber('INV-123') // for PayBill only
     ->simulate()
     ->getResponse();
 ```
 
-# 3. Business to Customer (B2C)
-
-Send money from business to customer:
-
+- Business to Customer (B2C)
 ```php
-$response = $mpesa->businessToCustomer()
+$resp = $mpesa->businessToCustomer()
     ->setInitiatorName('YOUR_INITIATOR_NAME')
-    ->setCommandId('SalaryPayment') // or 'BusinessPayment', 'PromotionPayment'
+    ->setCommandId('SalaryPayment') // or BusinessPayment, PromotionPayment
     ->setAmount(1000)
     ->setPhoneNumber('254712345678')
     ->setRemarks('Salary payment')
@@ -108,23 +123,18 @@ $response = $mpesa->businessToCustomer()
         'YOUR_INITIATOR_PASSWORD',
         'SalaryPayment',
         1000,
-        'YOUR_BUSINESS_CODE',
+        'YOUR_SHORTCODE',
         '254712345678',
         'Salary payment',
         'https://yourdomain.com/timeout',
         'https://yourdomain.com/result',
         'May 2023 salary'
     );
-
-print_r($response);
 ```
 
-# 4. Reversal Service
-
-Reverse a transaction:
-
+- Reversal
 ```php
-$response = $mpesa->reversal()
+$resp = $mpesa->reversal()
     ->setInitiator('YOUR_INITIATOR_NAME')
     ->setTransactionId('YOUR_TRANSACTION_ID')
     ->setReceiverIdentifierType('11') // 1=MSISDN, 2=Till, 4=Shortcode
@@ -134,50 +144,86 @@ $response = $mpesa->reversal()
         'YOUR_INITIATOR_NAME',
         'YOUR_INITIATOR_PASSWORD',
         'Refund',
-        'YOUR_BUSINESS_CODE',
+        'YOUR_SHORTCODE',
         'YOUR_TRANSACTION_ID',
-        '11', // Identifier type
+        '11',
         'https://yourdomain.com/timeout',
         'https://yourdomain.com/result',
         'Customer refund'
     );
-
-print_r($response);
 ```
 
-RuntimeException for API request failures
-
-Exception for general errors
-
-Always wrap your calls in try-catch blocks:
+## Error handling
+Wrap service calls in try/catch:
 
 ```php
 try {
-    $response = $mpesa->stk()->push()->getResponse();
-} catch (\Exception $e) {
-    echo 'Error: ' . $e->getMessage();
+    $resp = $mpesa->stk()->push()->getResponse();
+} catch (\Throwable $e) {
+    error_log('M-Pesa error: ' . $e->getMessage());
 }
 ```
 
-# Testing
+## Advanced configuration
 
-For sandbox testing, use the test credentials from the Safaricom Developer Portal and set the environment to 'sandbox'.
+- Token cache file
+```php
+$mpesa->setStoreFile('/var/run/mpesa/token.json');
+$path = $mpesa->getResolvedStoreFilePath(); // inspect where it ends up
+```
 
-# License
+- Debug logs
+```php
+$mpesa->setDebug(true); // lock events, cache hits/misses, and token response metadata go to error_log
+```
 
-This SDK is open-source software licensed under the MIT license.
+- Test-only: override base URL
+For automated tests or proxies, you can override via the underlying config (not usually needed in apps):
 
-# Support
+```php
+// $config is internal; shown for completeness in test setups only
+// $config->setBaseUrl('http://127.0.0.1:8091');
+```
 
-For issues or feature requests, please open an issue on the GitHub repository.
+## Testing
+The repository ships with a few simple tests, including concurrency/tamper checks for the token cache.
 
-This README provides comprehensive documentation covering:
+- Smoke test: cache read path
+```bash
+php src/Tests/token_cache_smoke.php
+```
 
-1. Installation instructions
-2. Basic usage examples for all services
-3. Configuration options
-4. Error handling guidance
-5. Testing information
-6. License and support details
+- Concurrency test: verifies single network fetch with many parallel processes
+```bash
+# Start fake token server in a background shell
+php -S 127.0.0.1:8091 src/Tests/fake_mpesa_server.php
 
-The documentation follows a clear structure with code examples for each service and explains all the key parameters and methods available in your SDK.
+# In another shell
+php src/Tests/concurrency_test.php
+```
+
+- Tamper concurrency test: corrupts the cache mid-flight; ensures consistency and minimal re-fetch
+```bash
+# Start fake token server on a different port
+php -S 127.0.0.1:8092 src/Tests/fake_mpesa_server.php
+
+# In another shell
+php src/Tests/tamper_concurrency_test.php
+```
+
+Notes:
+- These tests use a local fake server and do not hit Safaricom endpoints.
+- If you see permission issues for the cache path, choose a directory writable by your PHP processes (e.g., `/tmp` or a shared run directory) and use `Mpesa::setStoreFile()`.
+
+## Troubleshooting
+- Token cache not updating:
+  - Ensure the process has write permission to the cache directory.
+  - Check for SELinux/AppArmor restrictions if applicable.
+  - Enable debug with `$mpesa->setDebug(true)` to see lock/cache logs in error_log.
+- SSL errors on sandbox: ensure your environment has recent CA certificates; avoid disabling verification in production.
+
+## License
+MIT License. See `LICENSE` in this repository.
+
+## Support
+Open an issue with details (PHP version, OS, logs, and a minimal repro). Pull requests welcome.
