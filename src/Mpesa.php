@@ -39,6 +39,30 @@ class Mpesa
     }
 
     /**
+     * Set the M-Pesa configuration.
+     *
+     * @param MpesaConfig $config The M-Pesa configuration.
+     *
+     * @return self
+     */
+    public function setConfig(MpesaConfig $config)
+    {
+        $this->config = $config;
+        $this->client = new ApiClient($this->config);
+        return $this;
+    }
+
+    /**
+     * Get the M-Pesa configuration.
+     *
+     * @return MpesaConfig The M-Pesa configuration.
+     */
+    public function getConfig(): MpesaConfig
+    {
+        return $this->config;
+    }
+
+    /**
      * Set the credentials for the M-Pesa API.
      *
      * @param string      $consumerKey    The consumer key
