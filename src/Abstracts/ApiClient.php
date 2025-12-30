@@ -60,6 +60,10 @@ class ApiClient implements MpesaInterface
 
         $responseData = json_decode($response);
 
+        if ($this->config->getDebug()) {
+            error_log('[MpesaSDK] API response: ' . (string)$response);
+        }
+
         // Check for API errors
         if ($httpCode >= 400) {
             $errorMessage = $responseData->errorMessage ?? 'Unknown error occurred';
