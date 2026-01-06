@@ -121,7 +121,7 @@ class CustomerToBusinessService extends BaseService
             'ValidationURL' => $this->validationUrl,
         ];
 
-        $this->response = $this->client->executeRequest($data, '/mpesa/c2b/v1/registerurl');
+        $this->response = $this->client->executeRequest($data, '/mpesa/c2b/v2/registerurl');
 
         return $this;
     }
