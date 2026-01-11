@@ -116,7 +116,7 @@ class TransactionStatusService extends AbstractService
         ?string $queue_timeout_url = null,
         ?string $result_url = null,
         ?string $occasion = null
-    ): array {
+    ): self {
         if ($initiator !== null) {
             $this->setInitiator($initiator);
         }
@@ -158,6 +158,7 @@ class TransactionStatusService extends AbstractService
             "Occassion" => $this->occasion,
         ];
 
-        return $this->client->executeRequest($requestData, "/mpesa/transactionstatus/v1/query");
+        $this->response = $this->client->executeRequest($requestData, "/mpesa/transactionstatus/v1/query");
+        return $this;
     }
 }
