@@ -15,6 +15,7 @@ use Kemboielvis\MpesaSdkPhp\Services\BusinessToCustomerService;
 use Kemboielvis\MpesaSdkPhp\Services\BusinessToPochiService;
 use Kemboielvis\MpesaSdkPhp\Services\CustomerToBusinessService;
 use Kemboielvis\MpesaSdkPhp\Services\DynamicQrService;
+use Kemboielvis\MpesaSdkPhp\Services\MobileNumberValidationService;
 use Kemboielvis\MpesaSdkPhp\Services\PullTransactionsService;
 use Kemboielvis\MpesaSdkPhp\Services\ReversalService;
 use Kemboielvis\MpesaSdkPhp\Services\StkService;
@@ -294,6 +295,16 @@ class Mpesa
     public function b2cHakikisha(): B2CHakikishaService
     {
         return new B2CHakikishaService($this->config, $this->client);
+    }
+
+    /**
+     * Get Mobile Number Validation (KYC) service.
+     *
+     * @return MobileNumberValidationService
+     */
+    public function mobileNumberValidation(): MobileNumberValidationService
+    {
+        return new MobileNumberValidationService($this->config, $this->client);
     }
 
     /**

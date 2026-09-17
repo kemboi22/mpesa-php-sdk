@@ -151,6 +151,21 @@ try {
 }
 ```
 
+- Mobile Number Validation (check a number is registered under an ID; commercial, billed per call)
+```php
+use Kemboielvis\MpesaSdkPhp\Services\MobileNumberValidationService as Kyc;
+
+$kyc = $mpesa->mobileNumberValidation()
+    ->setShortCode('776700')        // defaults to setBusinessCode()
+    ->setPhoneNumber('0710860780')
+    ->setIdType(Kyc::ID_NATIONAL)   // ID_NATIONAL (01), ID_MILITARY (02), ID_PASSPORT (05)
+    ->setIdNumber('45435345')
+    ->validate();
+
+$kyc->isMatch();     // true when responseCode is 4000 ("Details match successfully")
+$kyc->getResponse(); // responseRefID, responseCode, responseMessage, status
+```
+
 - Business to Pochi (pay a customer's Pochi la Biashara wallet)
 ```php
 $pochi = $mpesa->businessToPochi()
