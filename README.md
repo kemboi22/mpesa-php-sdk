@@ -132,6 +132,25 @@ $resp = $mpesa->businessToCustomer()
     );
 ```
 
+- B2C Hakikisha (check who owns a number before paying; requires Safaricom approval)
+```php
+try {
+    $check = $mpesa->b2cHakikisha()
+        ->setPhoneNumber('0722000000')
+        ->setShortCode('123456') // defaults to setBusinessCode()
+        ->lookup();
+
+    if ($check->isFound()) {
+        echo $check->getCustomerName(); // "john M****** M******"
+        $check->getCustomer();          // ['firstName' => 'john', 'middleName' => 'M******', 'lastName' => 'M******']
+    } else {
+        echo $check->getErrorMessage();
+    }
+} catch (RuntimeException $e) {
+    // HTTP errors, e.g. "API error (400): The customer does not exist."
+}
+```
+
 - Business to Pochi (pay a customer's Pochi la Biashara wallet)
 ```php
 $pochi = $mpesa->businessToPochi()

@@ -8,6 +8,7 @@ use Kemboielvis\MpesaSdkPhp\Abstracts\MpesaInterface;
 use Kemboielvis\MpesaSdkPhp\Services\AccountBalanceService;
 use Kemboielvis\MpesaSdkPhp\Services\B2BExpressCheckoutService;
 use Kemboielvis\MpesaSdkPhp\Services\B2CAccountTopUpService;
+use Kemboielvis\MpesaSdkPhp\Services\B2CHakikishaService;
 use Kemboielvis\MpesaSdkPhp\Services\BusinessBuyGoodsService;
 use Kemboielvis\MpesaSdkPhp\Services\BusinessPayBillService;
 use Kemboielvis\MpesaSdkPhp\Services\BusinessToCustomerService;
@@ -283,6 +284,16 @@ class Mpesa
     public function businessToPochi(): BusinessToPochiService
     {
         return new BusinessToPochiService($this->config, $this->client);
+    }
+
+    /**
+     * Get B2C Hakikisha (customer name lookup) service.
+     *
+     * @return B2CHakikishaService
+     */
+    public function b2cHakikisha(): B2CHakikishaService
+    {
+        return new B2CHakikishaService($this->config, $this->client);
     }
 
     /**
