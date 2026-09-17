@@ -177,6 +177,29 @@ $balances = AccountBalanceService::parseBalances(file_get_contents('php://input'
 //                        'reserved' => 0.0, 'uncleared' => 0.0], 'Utility Account' => [...], ...]
 ```
 
+- Pull Transactions (recover C2B transactions from the last 48 hours)
+```php
+// One-time registration (1000 = registered, 1001 = already registered)
+$mpesa->pullTransactions()
+    ->setShortCode('600000')          // defaults to setBusinessCode()
+    ->setNominatedNumber('0722000000') // number in the shortcode KYC details
+    ->setCallbackUrl('https://yourdomain.com/pull/callback')
+    ->register()
+    ->getResponse();
+
+// Query (1000 = transactions found, 1001 = none in the period)
+$pull = $mpesa->pullTransactions()
+    ->setShortCode('600000')
+    ->setStartDate(new DateTime('-2 hours'))  // or '2020-08-04 08:36:00'
+    ->setEndDate(new DateTime())
+    ->setOffset(0)                             // row to start from, for paging
+    ->query();
+
+foreach ($pull->getTransactions() as $trx) {
+    echo $trx->transactionId, ' ', $trx->amount, ' ', $trx->billreference, PHP_EOL;
+}
+```
+
 - Tax Remittance (pay KRA)
 ```php
 $tax = $mpesa->taxRemittance()

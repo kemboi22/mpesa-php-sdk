@@ -10,6 +10,7 @@ use Kemboielvis\MpesaSdkPhp\Services\B2BExpressCheckoutService;
 use Kemboielvis\MpesaSdkPhp\Services\BusinessToCustomerService;
 use Kemboielvis\MpesaSdkPhp\Services\CustomerToBusinessService;
 use Kemboielvis\MpesaSdkPhp\Services\DynamicQrService;
+use Kemboielvis\MpesaSdkPhp\Services\PullTransactionsService;
 use Kemboielvis\MpesaSdkPhp\Services\ReversalService;
 use Kemboielvis\MpesaSdkPhp\Services\StkService;
 use Kemboielvis\MpesaSdkPhp\Services\TaxRemittanceService;
@@ -228,6 +229,16 @@ class Mpesa
     public function taxRemittance(): TaxRemittanceService
     {
         return new TaxRemittanceService($this->config, $this->client);
+    }
+
+    /**
+     * Get Pull Transactions service.
+     *
+     * @return PullTransactionsService
+     */
+    public function pullTransactions(): PullTransactionsService
+    {
+        return new PullTransactionsService($this->config, $this->client);
     }
 
     /**
