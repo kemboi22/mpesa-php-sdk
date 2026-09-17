@@ -15,6 +15,7 @@ use Kemboielvis\MpesaSdkPhp\Services\BusinessToCustomerService;
 use Kemboielvis\MpesaSdkPhp\Services\BusinessToPochiService;
 use Kemboielvis\MpesaSdkPhp\Services\CustomerToBusinessService;
 use Kemboielvis\MpesaSdkPhp\Services\DynamicQrService;
+use Kemboielvis\MpesaSdkPhp\Services\IotSimService;
 use Kemboielvis\MpesaSdkPhp\Services\MobileDataBundlesService;
 use Kemboielvis\MpesaSdkPhp\Services\MobileNumberValidationService;
 use Kemboielvis\MpesaSdkPhp\Services\PullTransactionsService;
@@ -316,6 +317,16 @@ class Mpesa
     public function mobileDataBundles(): MobileDataBundlesService
     {
         return new MobileDataBundlesService($this->config, $this->client);
+    }
+
+    /**
+     * Get IoT SIM Management service.
+     *
+     * @return IotSimService
+     */
+    public function iotSim(): IotSimService
+    {
+        return new IotSimService($this->config, $this->client);
     }
 
     /**

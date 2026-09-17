@@ -384,6 +384,35 @@ echo '<img src="' . $qr->getQrCodeDataUri() . '">';
 $qr->saveQrCode('/path/to/qr.png');
 ```
 
+- IoT SIM Management (manage Safaricom IoT SIMs and their messages)
+```php
+$iot = $mpesa->iotSim()
+    ->setVpnGroup('1-555162310488_VPN')           // your IoT account number
+    ->setUsername('darajasandbox@safaricom.co.ke'); // user registered on the account
+
+// SIM operations
+$sims = $iot->getAllSims(0, 20)->getSims();        // start index, page size
+$iot->queryLifeCycleStatus('0110100606')->getBody(); // desc, status, statusCode
+$info = $iot->queryCustomerInfo('0110100606')->getBody(); // offeringName, offeringId, ...
+$iot->activateSim('0110100606');
+$iot->renameAsset('0110100606', 'Tracker001');
+$iot->suspendSim('0110100606', $info->offeringId);
+$iot->resumeSim('0110100606', $info->offeringId);
+$iot->getActivationTrends(new DateTime('-30 days'), new DateTime()); // or '20240221', '20240421'
+
+// Messaging
+$iot->sendMessage('0110100606', 'Test');
+$messages = $iot->searchMessages('0110100606')->getMessages(); // "254" is added for you
+$iot->filterMessages('02-05-2024 08:39:11', new DateTime(), '1', 1, 10)->getMessages();
+$iot->getAllMessages(1, 10)->getMessages();
+$iot->deleteMessage($messages[0]->id);
+$iot->deleteMessageThread('0110100606');
+
+$iot->isSuccessful(); // header.responseCode === 200 for the last call
+```
+
+Some failures (e.g. a SIM that is not in your account) still return `responseCode` 200, so check `getBody()` as well.
+
 ## Error handling
 Wrap service calls in try/catch:
 
