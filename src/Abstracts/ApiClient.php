@@ -80,6 +80,8 @@ class ApiClient implements MpesaInterface, SupportsGetRequests
         }
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($curl, CURLOPT_HEADER, false);
+        curl_setopt($curl, CURLOPT_CONNECTTIMEOUT, $this->config->getConnectTimeout());
+        curl_setopt($curl, CURLOPT_TIMEOUT, $this->config->getTimeout());
 
         $response = curl_exec($curl);
         $error = curl_error($curl);

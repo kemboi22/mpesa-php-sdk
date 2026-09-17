@@ -31,6 +31,10 @@ class MpesaConfig
 
     private string $certificate = '';
 
+    private int $timeout = 60;
+
+    private int $connectTimeout = 10;
+
     public function __construct(
         string  $consumerKey,
         string  $consumerSecret,
@@ -342,6 +346,48 @@ class MpesaConfig
     public function setDebug(bool $debug): self
     {
         $this->debug = $debug;
+        return $this;
+    }
+
+    /**
+     * Get the maximum time in seconds an API request may take.
+     */
+    public function getTimeout(): int
+    {
+        return $this->timeout;
+    }
+
+    /**
+     * Set the maximum time in seconds an API request may take.
+     */
+    public function setTimeout(int $seconds): self
+    {
+        if ($seconds < 1) {
+            throw new \InvalidArgumentException('Timeout must be at least 1 second');
+        }
+
+        $this->timeout = $seconds;
+        return $this;
+    }
+
+    /**
+     * Get the maximum time in seconds to wait for a connection.
+     */
+    public function getConnectTimeout(): int
+    {
+        return $this->connectTimeout;
+    }
+
+    /**
+     * Set the maximum time in seconds to wait for a connection.
+     */
+    public function setConnectTimeout(int $seconds): self
+    {
+        if ($seconds < 1) {
+            throw new \InvalidArgumentException('Connect timeout must be at least 1 second');
+        }
+
+        $this->connectTimeout = $seconds;
         return $this;
     }
 }

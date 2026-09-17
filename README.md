@@ -488,6 +488,11 @@ $mpesa->accountBalance()->accountBalance('initiator', 'INITIATOR_PASSWORD', /* .
 If a credential is set and there is no certificate, a password passed to a service is ignored
 and the credential is used. With neither, passing a password throws an `InvalidArgumentException`.
 
+- Timeouts
+```php
+$mpesa->setTimeouts(30, 5); // request timeout, connect timeout (seconds); defaults 60 and 10
+```
+
 - Token cache file
 
 The default cache file is `mpesa_token_<sha256 of your credentials>.json` in the system temp
@@ -503,11 +508,10 @@ $mpesa->setDebug(true); // lock events, cache hits/misses, and token response me
 ```
 
 - Test-only: override base URL
-For automated tests or proxies, you can override via the underlying config (not usually needed in apps):
+For automated tests or proxies (not usually needed in apps). Set it before creating services:
 
 ```php
-// $config is internal; shown for completeness in test setups only
-// $config->setBaseUrl('http://127.0.0.1:8091');
+$mpesa->getConfig()->setBaseUrl('http://127.0.0.1:8091');
 ```
 
 ## Testing

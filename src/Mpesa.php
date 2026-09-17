@@ -181,6 +181,21 @@ class Mpesa
     }
 
     /**
+     * Set request timeouts.
+     *
+     * @param int $timeout        Maximum seconds a request may take
+     * @param int $connectTimeout Maximum seconds to wait for a connection
+     *
+     * @return self
+     */
+    public function setTimeouts(int $timeout, int $connectTimeout = 10): self
+    {
+        $this->config->setTimeout($timeout)->setConnectTimeout($connectTimeout);
+
+        return $this;
+    }
+
+    /**
      * Get STK push service.
      *
      * @return StkService
