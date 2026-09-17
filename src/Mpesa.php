@@ -44,11 +44,12 @@ class Mpesa
      * @param string      $environment    The environment (live or sandbox)
      */
     public function __construct(
-        string $consumerKey = null,
-        string $consumerSecret = null,
+        ?string $consumerKey = null,
+        ?string $consumerSecret = null,
         string $environment = 'sandbox'
     ) {
-        $this->config = new MpesaConfig($consumerKey, $consumerSecret, $environment);
+        // Credentials may be supplied later with setCredentials()
+        $this->config = new MpesaConfig($consumerKey ?? '', $consumerSecret ?? '', $environment);
         $this->client = new ApiClient($this->config);
     }
 
@@ -79,6 +80,9 @@ class Mpesa
     /**
      * Set the credentials for the M-Pesa API.
      *
+     * Other settings (business code, pass key, URLs, certificate, security
+     * credential, timeouts, debug) are kept.
+     *
      * @param string      $consumerKey    The consumer key
      * @param string      $consumerSecret The consumer secret
      * @param string      $environment    The environment (live or sandbox)
@@ -88,8 +92,39 @@ class Mpesa
      */
     public function setCredentials(string $consumerKey, string $consumerSecret, string $environment = 'sandbox', ?string $storeFile = null): self
     {
-        $effectiveStoreFile = $storeFile ?? $this->config->getStoreFile();
-        $this->config = new MpesaConfig($consumerKey, $consumerSecret, $environment, null, null, null, null, null, $effectiveStoreFile);
+        $old = $this->config;
+
+        // Keep a custom store file, but not the default one: that is named after the
+        // old credentials and would hand the old app's token to the new credentials.
+        if (null === $storeFile && $old->getStoreFile() !== $old->getEncryptedFileName()) {
+            $storeFile = $old->getStoreFile();
+        }
+
+        $config = new MpesaConfig(
+            $consumerKey,
+            $consumerSecret,
+            $environment,
+            $old->getBusinessCode(),
+            $old->getPassKey(),
+            null,
+            $old->getQueueTimeoutUrl(),
+            $old->getResultUrl(),
+            $storeFile
+        );
+        $config->setDebug($old->getDebug())
+            ->setVerifySsl($old->getVerifySsl())
+            ->setTimeout($old->getTimeout())
+            ->setConnectTimeout($old->getConnectTimeout());
+
+        if ('' !== $old->getCertificate()) {
+            $config->setCertificate($old->getCertificate());
+        }
+
+        if ('' !== $old->getSecurityCredential()) {
+            $config->overrideSecurityCredential($old->getSecurityCredential());
+        }
+
+        $this->config = $config;
         $this->client = new ApiClient($this->config);
 
         return $this;
@@ -211,13 +246,24 @@ class Mpesa
     }
 
     /**
+     * Give a service its own copy of the configuration, so values it sets
+     * (short codes, URLs, credentials) do not leak into other services.
+     *
+     * @return MpesaConfig
+     */
+    private function serviceConfig(): MpesaConfig
+    {
+        return clone $this->config;
+    }
+
+    /**
      * Get STK push service.
      *
      * @return StkService
      */
     public function stk(): StkService
     {
-        return new StkService($this->config, $this->client);
+        return new StkService($this->serviceConfig(), $this->client);
     }
 
     /**
@@ -227,7 +273,7 @@ class Mpesa
      */
     public function customerToBusiness(): CustomerToBusinessService
     {
-        return new CustomerToBusinessService($this->config, $this->client);
+        return new CustomerToBusinessService($this->serviceConfig(), $this->client);
     }
 
     /**
@@ -237,7 +283,7 @@ class Mpesa
      */
     public function businessToCustomer(): BusinessToCustomerService
     {
-        return new BusinessToCustomerService($this->config, $this->client);
+        return new BusinessToCustomerService($this->serviceConfig(), $this->client);
     }
 
     /**
@@ -247,7 +293,7 @@ class Mpesa
      */
     public function accountBalance(): AccountBalanceService
     {
-        return new AccountBalanceService($this->config, $this->client);
+        return new AccountBalanceService($this->serviceConfig(), $this->client);
     }
 
     /**
@@ -257,7 +303,7 @@ class Mpesa
      */
     public function transactionStatus(): TransactionStatusService
     {
-        return new TransactionStatusService($this->config, $this->client);
+        return new TransactionStatusService($this->serviceConfig(), $this->client);
     }
 
     /**
@@ -267,7 +313,7 @@ class Mpesa
      */
     public function reversal(): ReversalService
     {
-        return new ReversalService($this->config, $this->client);
+        return new ReversalService($this->serviceConfig(), $this->client);
     }
 
     /**
@@ -277,7 +323,7 @@ class Mpesa
      */
     public function b2bExpressCheckout(): B2BExpressCheckoutService
     {
-        return new B2BExpressCheckoutService($this->config, $this->client);
+        return new B2BExpressCheckoutService($this->serviceConfig(), $this->client);
     }
 
     /**
@@ -287,7 +333,7 @@ class Mpesa
      */
     public function dynamicQr(): DynamicQrService
     {
-        return new DynamicQrService($this->config, $this->client);
+        return new DynamicQrService($this->serviceConfig(), $this->client);
     }
 
     /**
@@ -297,7 +343,7 @@ class Mpesa
      */
     public function taxRemittance(): TaxRemittanceService
     {
-        return new TaxRemittanceService($this->config, $this->client);
+        return new TaxRemittanceService($this->serviceConfig(), $this->client);
     }
 
     /**
@@ -307,7 +353,7 @@ class Mpesa
      */
     public function pullTransactions(): PullTransactionsService
     {
-        return new PullTransactionsService($this->config, $this->client);
+        return new PullTransactionsService($this->serviceConfig(), $this->client);
     }
 
     /**
@@ -317,7 +363,7 @@ class Mpesa
      */
     public function businessPayBill(): BusinessPayBillService
     {
-        return new BusinessPayBillService($this->config, $this->client);
+        return new BusinessPayBillService($this->serviceConfig(), $this->client);
     }
 
     /**
@@ -327,7 +373,7 @@ class Mpesa
      */
     public function businessBuyGoods(): BusinessBuyGoodsService
     {
-        return new BusinessBuyGoodsService($this->config, $this->client);
+        return new BusinessBuyGoodsService($this->serviceConfig(), $this->client);
     }
 
     /**
@@ -337,7 +383,7 @@ class Mpesa
      */
     public function b2cAccountTopUp(): B2CAccountTopUpService
     {
-        return new B2CAccountTopUpService($this->config, $this->client);
+        return new B2CAccountTopUpService($this->serviceConfig(), $this->client);
     }
 
     /**
@@ -347,7 +393,7 @@ class Mpesa
      */
     public function businessToPochi(): BusinessToPochiService
     {
-        return new BusinessToPochiService($this->config, $this->client);
+        return new BusinessToPochiService($this->serviceConfig(), $this->client);
     }
 
     /**
@@ -357,7 +403,7 @@ class Mpesa
      */
     public function b2cHakikisha(): B2CHakikishaService
     {
-        return new B2CHakikishaService($this->config, $this->client);
+        return new B2CHakikishaService($this->serviceConfig(), $this->client);
     }
 
     /**
@@ -367,7 +413,7 @@ class Mpesa
      */
     public function mobileNumberValidation(): MobileNumberValidationService
     {
-        return new MobileNumberValidationService($this->config, $this->client);
+        return new MobileNumberValidationService($this->serviceConfig(), $this->client);
     }
 
     /**
@@ -377,7 +423,7 @@ class Mpesa
      */
     public function mobileDataBundles(): MobileDataBundlesService
     {
-        return new MobileDataBundlesService($this->config, $this->client);
+        return new MobileDataBundlesService($this->serviceConfig(), $this->client);
     }
 
     /**
@@ -387,7 +433,7 @@ class Mpesa
      */
     public function iotSim(): IotSimService
     {
-        return new IotSimService($this->config, $this->client);
+        return new IotSimService($this->serviceConfig(), $this->client);
     }
 
     /**
@@ -397,7 +443,7 @@ class Mpesa
      */
     public function ageOnNetwork(): AgeOnNetworkService
     {
-        return new AgeOnNetworkService($this->config, $this->client);
+        return new AgeOnNetworkService($this->serviceConfig(), $this->client);
     }
 
     /**
@@ -407,7 +453,7 @@ class Mpesa
      */
     public function lipaNaBonga(): LipaNaBongaService
     {
-        return new LipaNaBongaService($this->config, $this->client);
+        return new LipaNaBongaService($this->serviceConfig(), $this->client);
     }
 
     /**

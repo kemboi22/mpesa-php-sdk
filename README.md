@@ -51,6 +51,10 @@ $response = $mpesa->setBusinessCode('YOUR_TILL_OR_SHORTCODE')
 print_r($response);
 ```
 
+Each call such as `$mpesa->stk()` returns a new service with its **own copy** of the settings.
+Set shared values (business code, pass key, certificate, URLs) on `$mpesa` first; values you
+set on a service (e.g. `setPartyA()`) only apply to that service.
+
 For Buy Goods, where the till number differs from the store number used as the business code:
 ```php
 $mpesa->setBusinessCode('STORE_NUMBER')->stk()
