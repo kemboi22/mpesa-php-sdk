@@ -111,6 +111,9 @@ $resp = $mpesa->customerToBusiness()
 
 - Business to Customer (B2C)
 ```php
+$mpesa->setCertificate('/path/to/SandboxCertificate.cer'); // encrypts the password below
+// or: $mpesa->setSecurityCredential('ENCRYPTED_CREDENTIAL'); // no certificate needed
+
 $resp = $mpesa->businessToCustomer()
     ->setInitiatorName('YOUR_INITIATOR_NAME')
     ->setCommandId('SalaryPayment') // or BusinessPayment, PromotionPayment
@@ -454,7 +457,30 @@ try {
 
 ## Advanced configuration
 
+- Security credentials (B2C, Reversal, Transaction Status, Account Balance, ...)
+
+M-Pesa expects the initiator password encrypted with Safaricom's public key certificate
+(RSA, PKCS #1 v1.5). Use **one** of these:
+
+```php
+// Option A: an encrypted credential you already have (e.g. from the Daraja portal).
+// No certificate needed.
+$mpesa->setSecurityCredential('ENCRYPTED_CREDENTIAL');   // for every service
+$mpesa->accountBalance()->setSecurityCredential('...');  // or for one service only
+
+// Option B: let the SDK encrypt the plain password with the certificate
+// (download the sandbox or production certificate from the Daraja portal).
+$mpesa->setCertificate('/path/to/ProductionCertificate.cer'); // path or PEM contents
+$mpesa->accountBalance()->accountBalance('initiator', 'INITIATOR_PASSWORD', /* ... */);
+```
+
+If a credential is set and there is no certificate, a password passed to a service is ignored
+and the credential is used. With neither, passing a password throws an `InvalidArgumentException`.
+
 - Token cache file
+
+The default cache file is `mpesa_token_<sha256 of your credentials>.json` in the system temp
+directory, readable only by the PHP user.
 ```php
 $mpesa->setStoreFile('/var/run/mpesa/token.json');
 $path = $mpesa->getResolvedStoreFilePath(); // inspect where it ends up
@@ -475,6 +501,13 @@ For automated tests or proxies, you can override via the underlying config (not 
 
 ## Testing
 The repository ships with a few simple tests, including concurrency/tamper checks for the token cache.
+
+- Manual sandbox STK push (credentials come from environment variables, never from the code)
+```bash
+cd src/Tests
+MPESA_CONSUMER_KEY=... MPESA_CONSUMER_SECRET=... MPESA_PHONE=2547XXXXXXXX \
+MPESA_CALLBACK_URL=https://yourdomain.com/callback php tests.php
+```
 
 - Smoke test: cache read path
 ```bash

@@ -152,6 +152,35 @@ class Mpesa
     }
 
     /**
+     * Set M-Pesa's public key certificate, used to encrypt initiator passwords.
+     *
+     * @param string $certificate Path to the .cer file from the Daraja portal, or its PEM contents
+     *
+     * @return self
+     */
+    public function setCertificate(string $certificate): self
+    {
+        $this->config->setCertificate($certificate);
+
+        return $this;
+    }
+
+    /**
+     * Set an already encrypted security credential (e.g. generated on the
+     * Daraja portal). With this set, no certificate is needed.
+     *
+     * @param string $credential The encrypted security credential
+     *
+     * @return self
+     */
+    public function setSecurityCredential(string $credential): self
+    {
+        $this->config->overrideSecurityCredential($credential);
+
+        return $this;
+    }
+
+    /**
      * Get STK push service.
      *
      * @return StkService

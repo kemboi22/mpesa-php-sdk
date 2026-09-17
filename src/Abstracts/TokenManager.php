@@ -302,7 +302,8 @@ class TokenManager
             throw new \RuntimeException('Failed to write temporary cache file: ' . $tmp);
         }
 
-        @chmod($tmp, 0664);
+        // The file holds a live access token, so only the owner may read it
+        @chmod($tmp, 0600);
 
         if (!@rename($tmp, $this->tokenCacheFile)) {
             @unlink($tmp);

@@ -29,6 +29,8 @@ class MpesaConfig
 
     private bool $debug = false;
 
+    private string $certificate = '';
+
     public function __construct(
         string  $consumerKey,
         string  $consumerSecret,
@@ -106,12 +108,7 @@ class MpesaConfig
     }
 
     /**
-     * Generate and set the security credential using AES-256-CBC encryption.
-     *
-     * This method encrypts the initiator password with a predetermined
-     * password and a random initialization vector (IV) using the AES-256-CBC
-     * encryption algorithm. The result is then base64 encoded and stored as
-     * the security credential.
+     * Get the encrypted security credential sent to M-Pesa.
      *
      * @return string
      */
@@ -121,25 +118,103 @@ class MpesaConfig
     }
 
     /**
-     * Set the security credential by storing the provided initiator password.
+     * Set M-Pesa's public key certificate, used to encrypt initiator passwords.
+     * Download the sandbox or production certificate from the Daraja portal.
      *
-     * @param string $initiator_password The initiator password to be stored as the security credential.
+     * @param string $certificate Path to the .cer file, or its PEM contents
      *
      * @return self
+     *
+     * @throws \InvalidArgumentException If the certificate cannot be read
      */
-    public function setSecurityCredential(string $initiator_password): self
+    public function setCertificate(string $certificate): self
     {
-        $initiator_password1 = $initiator_password;
+        $certificate = trim($certificate);
 
-        $method = 'aes-256-cbc';
-        $password = 'mypassword';
-        $ivlen = openssl_cipher_iv_length($method);
-        $iv = openssl_random_pseudo_bytes($ivlen);
-        $this->security_credential = base64_encode($iv . openssl_encrypt("{$initiator_password1} + Certificate", $method, $password, 0, $iv));
+        if ('' === $certificate) {
+            throw new \InvalidArgumentException('Certificate cannot be empty');
+        }
+
+        if (! str_contains($certificate, '-----BEGIN') && is_file($certificate)) {
+            $contents = @file_get_contents($certificate);
+            if (false === $contents) {
+                throw new \InvalidArgumentException("Unable to read certificate file: $certificate");
+            }
+            $certificate = trim($contents);
+        }
+
+        // DER (binary) certificates are converted to PEM
+        if (! str_contains($certificate, '-----BEGIN')) {
+            $certificate = "-----BEGIN CERTIFICATE-----\n"
+                . chunk_split(base64_encode($certificate), 64, "\n")
+                . "-----END CERTIFICATE-----\n";
+        }
+
+        if (false === openssl_pkey_get_public($certificate)) {
+            throw new \InvalidArgumentException('Invalid certificate: no public key could be read');
+        }
+
+        $this->certificate = $certificate;
 
         return $this;
     }
 
+    /**
+     * Get M-Pesa's public key certificate (PEM), if set.
+     *
+     * @return string
+     */
+    public function getCertificate(): string
+    {
+        return $this->certificate;
+    }
+
+    /**
+     * Encrypt the initiator password with M-Pesa's public key certificate
+     * (RSA, PKCS #1 v1.5) and store it as the security credential.
+     *
+     * The certificate is only needed when no credential is set yet: if an
+     * already encrypted credential was provided (constructor or
+     * overrideSecurityCredential()) and there is no certificate, that
+     * credential is kept and the password is not used.
+     *
+     * @param string      $initiator_password The initiator's plain-text password.
+     * @param string|null $certificate        Optional certificate path or PEM; defaults to setCertificate()
+     *
+     * @return self
+     *
+     * @throws \InvalidArgumentException If there is neither a certificate nor an existing credential
+     * @throws \RuntimeException         If encryption fails
+     */
+    public function setSecurityCredential(string $initiator_password, ?string $certificate = null): self
+    {
+        if (null !== $certificate) {
+            $this->setCertificate($certificate);
+        }
+
+        if ('' === $this->certificate) {
+            if ('' !== $this->security_credential) {
+                // Use the pre-encrypted credential (e.g. generated on the Daraja portal)
+                return $this;
+            }
+
+            throw new \InvalidArgumentException(
+                'An M-Pesa certificate is required to encrypt the initiator password. '
+                . 'Call setCertificate() with the certificate from the Daraja portal, '
+                . 'or pass an already encrypted credential to overrideSecurityCredential().'
+            );
+        }
+
+        $publicKey = openssl_pkey_get_public($this->certificate);
+
+        if (false === $publicKey || ! openssl_public_encrypt($initiator_password, $encrypted, $publicKey, OPENSSL_PKCS1_PADDING)) {
+            throw new \RuntimeException('Failed to encrypt the initiator password');
+        }
+
+        $this->security_credential = base64_encode($encrypted);
+
+        return $this;
+    }
 
     /**
      * Override the security credential.
@@ -164,17 +239,15 @@ class MpesaConfig
 
 
     /**
-     * Generate an encrypted file string using the consumer key, consumer secret and a hardcoded password.
+     * Get the default token cache file name for these credentials.
      *
-     * The encrypted file string is generated by encrypting the concatenation of the consumer key, consumer secret and a hardcoded string with the AES-256-CBC encryption algorithm.
+     * The name is a one-way hash, so the credentials cannot be recovered from it.
      *
-     * @return string The encrypted file string
+     * @return string The file name
      */
     public function getEncryptedFileName(): string
     {
-        $method = 'aes-256-cbc';
-        $password = 'mypassword';
-        return base64_encode(openssl_encrypt("{$this->getConsumerKey()}{$this->getConsumerSecret()} + Certificate", $method, $password, 0,"passwordpassword")).".json";
+        return 'mpesa_token_' . hash('sha256', $this->getConsumerKey() . ':' . $this->getConsumerSecret()) . '.json';
     }
 
     /**
