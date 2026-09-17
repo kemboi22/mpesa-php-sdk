@@ -11,6 +11,7 @@ use Kemboielvis\MpesaSdkPhp\Services\B2CAccountTopUpService;
 use Kemboielvis\MpesaSdkPhp\Services\BusinessBuyGoodsService;
 use Kemboielvis\MpesaSdkPhp\Services\BusinessPayBillService;
 use Kemboielvis\MpesaSdkPhp\Services\BusinessToCustomerService;
+use Kemboielvis\MpesaSdkPhp\Services\BusinessToPochiService;
 use Kemboielvis\MpesaSdkPhp\Services\CustomerToBusinessService;
 use Kemboielvis\MpesaSdkPhp\Services\DynamicQrService;
 use Kemboielvis\MpesaSdkPhp\Services\PullTransactionsService;
@@ -272,6 +273,16 @@ class Mpesa
     public function b2cAccountTopUp(): B2CAccountTopUpService
     {
         return new B2CAccountTopUpService($this->config, $this->client);
+    }
+
+    /**
+     * Get Business to Pochi (B2Pochi) service.
+     *
+     * @return BusinessToPochiService
+     */
+    public function businessToPochi(): BusinessToPochiService
+    {
+        return new BusinessToPochiService($this->config, $this->client);
     }
 
     /**

@@ -132,6 +132,25 @@ $resp = $mpesa->businessToCustomer()
     );
 ```
 
+- Business to Pochi (pay a customer's Pochi la Biashara wallet)
+```php
+$pochi = $mpesa->businessToPochi()
+    ->setInitiatorName('testapi')                   // needs "ORG B2C API initiator" role
+    ->setSecurityCredential('ENCRYPTED_CREDENTIAL') // from the Daraja portal
+    ->setPartyA('600992')                           // B2C shortcode; defaults to setBusinessCode()
+    ->setPhoneNumber('0705912645')                  // Pochi wallet number
+    ->setAmount(10)                                 // Ksh 10 - 250,000
+    ->setRemarks('Supplier payment')                // 2 - 100 characters
+    ->setOccasion('ChristmasPay')                   // optional
+    ->setQueueTimeoutUrl('https://yourdomain.com/pochi/timeout')
+    ->setResultUrl('https://yourdomain.com/pochi/result')
+    // ->setOriginatorConversationId('...')         // optional; a UUID is generated if omitted
+    ->pay();
+
+$pochi->getResponse();
+$id = $pochi->getOriginatorConversationId(); // store it to match the callback and avoid double payment
+```
+
 - Reversal
 ```php
 $resp = $mpesa->reversal()
