@@ -11,7 +11,9 @@ class CustomerToBusinessService extends BaseService
 
     private string $validationUrl = '';
 
-    private string $responseType = '';
+    public const RESPONSE_TYPES = ['Completed', 'Cancelled'];
+
+    private string $responseType = 'Completed';
 
     private string $commandId = '';
 
@@ -19,9 +21,9 @@ class CustomerToBusinessService extends BaseService
 
     private ?object $response = null;
 
-    private string $amount;
+    private string $amount = '';
 
-    private string $phoneNumber;
+    private string $phoneNumber = '';
 
     /**
      * Set the confirmation URL.
@@ -52,14 +54,23 @@ class CustomerToBusinessService extends BaseService
     }
 
     /**
-     * Set the response type.
+     * Set what M-Pesa does when your validation URL is unreachable:
+     * "Completed" (default) completes the payment, "Cancelled" cancels it.
      *
-     * @param string $type The response type
+     * @param string $type Completed or Cancelled
      *
      * @return self
+     *
+     * @throws \InvalidArgumentException If the type is not supported
      */
     public function setResponseType(string $type): self
     {
+        $type = ucfirst(strtolower(trim($type)));
+
+        if (! in_array($type, self::RESPONSE_TYPES, true)) {
+            throw new \InvalidArgumentException('Response type must be one of: ' . implode(', ', self::RESPONSE_TYPES));
+        }
+
         $this->responseType = $type;
 
         return $this;
@@ -181,10 +192,12 @@ class CustomerToBusinessService extends BaseService
      * @param string $phoneNumber The phone number
      *
      * @return self
+     *
+     * @throws \RuntimeException If the phone number is invalid
      */
     public function setPhoneNumber(string $phoneNumber): self
     {
-        $this->phoneNumber = $phoneNumber;
+        $this->phoneNumber = $this->cleanPhoneNumber($phoneNumber);
 
         return $this;
     }

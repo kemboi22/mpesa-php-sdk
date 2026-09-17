@@ -2,3 +2,5 @@
 .php-cs-fixer.cache
 .idea
 /doxygen
+/src/Tests/tmp
+/src/Tests/fake_counter.txt

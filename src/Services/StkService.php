@@ -19,6 +19,8 @@ class StkService extends BaseService
 
     private string $transactionDesc = '';
 
+    private string $partyB = '';
+
     private ?object $response = null;
 
     /**
@@ -61,6 +63,23 @@ class StkService extends BaseService
     public function setPhoneNumber(string $phoneNumber): self
     {
         $this->phoneNumber = $this->cleanPhoneNumber($phoneNumber);
+
+        return $this;
+    }
+
+    /**
+     * Set the account that receives the money.
+     *
+     * Defaults to the business code. For CustomerBuyGoodsOnline, set this to the
+     * till number when it differs from the store number used as the business code.
+     *
+     * @param string $partyB The paybill or till number
+     *
+     * @return self
+     */
+    public function setPartyB(string $partyB): self
+    {
+        $this->partyB = $partyB;
 
         return $this;
     }
@@ -146,14 +165,17 @@ class StkService extends BaseService
     {
         $this->validatePushParams();
 
+        // The password is tied to the timestamp, so both must use the same value
+        $timestamp = $this->generateTimestamp();
+
         $data = [
             'BusinessShortCode' => $this->config->getBusinessCode(),
-            'Password' => $this->generatePassword(),
-            'Timestamp' => $this->generateTimestamp(),
+            'Password' => $this->generatePassword($timestamp),
+            'Timestamp' => $timestamp,
             'TransactionType' => $this->transactionType,
             'Amount' => $this->amount,
             'PartyA' => $this->phoneNumber,
-            'PartyB' => $this->config->getBusinessCode(),
+            'PartyB' => $this->partyB ?: $this->config->getBusinessCode(),
             'PhoneNumber' => $this->phoneNumber,
             'CallBackURL' => $this->callbackUrl,
             'AccountReference' => $this->accountReference ?: 'Account',
@@ -186,22 +208,25 @@ class StkService extends BaseService
      *
      * @param string|null $checkoutRequestId Optional checkout request ID
      *
-     * @return object The query response
+     * @return self Read the result with getResponse()
      *
      * @throws \RuntimeException If no checkout request ID is available
      */
-    public function query(?string $checkoutRequestId = null): object
+    public function query(?string $checkoutRequestId = null): self
     {
         $requestId = $checkoutRequestId ?? $this->getCheckoutRequestId();
+        $timestamp = $this->generateTimestamp();
 
         $data = [
             'BusinessShortCode' => $this->config->getBusinessCode(),
-            'Password' => $this->generatePassword(),
-            'Timestamp' => $this->generateTimestamp(),
+            'Password' => $this->generatePassword($timestamp),
+            'Timestamp' => $timestamp,
             'CheckoutRequestID' => $requestId,
         ];
 
-        return $this->client->executeRequest($data, '/mpesa/stkpushquery/v1/query');
+        $this->response = $this->client->executeRequest($data, '/mpesa/stkpushquery/v1/query');
+
+        return $this;
     }
 
     /**

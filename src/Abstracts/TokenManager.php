@@ -11,8 +11,6 @@ class TokenManager
 
     private string $consumerSecret;
 
-    private string $baseUrl;
-
     private string $tokenUrl = '/oauth/v1/generate?grant_type=client_credentials';
 
     private string $tokenCacheFile;
@@ -24,7 +22,6 @@ class TokenManager
     {
         $this->consumerKey = $config->getConsumerKey();
         $this->consumerSecret = $config->getConsumerSecret();
-        $this->baseUrl = $config->getBaseUrl();
         $this->debug = method_exists($config, 'getDebug') ? (bool) $config->getDebug() : false;
         $this->config = $config;
 
@@ -163,16 +160,18 @@ class TokenManager
 
             // Get a new token
             if ($this->debug) {
-                error_log('[MpesaSDK] Requesting new token from: ' . $this->baseUrl . $this->tokenUrl);
+                error_log('[MpesaSDK] Requesting new token from: ' . $this->config->getBaseUrl() . $this->tokenUrl);
             }
             $curl = curl_init();
-            curl_setopt($curl, CURLOPT_URL, $this->baseUrl . $this->tokenUrl);
+            curl_setopt($curl, CURLOPT_URL, $this->config->getBaseUrl() . $this->tokenUrl);
             $credentials = base64_encode($this->consumerKey . ':' . $this->consumerSecret);
             curl_setopt($curl, CURLOPT_HTTPHEADER, ['Authorization: Basic ' . $credentials]);
             curl_setopt($curl, CURLOPT_HEADER, false);
             curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
-            curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
-            curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, 0);
+            curl_setopt($curl, CURLOPT_CONNECTTIMEOUT, $this->config->getConnectTimeout());
+            curl_setopt($curl, CURLOPT_TIMEOUT, $this->config->getTimeout());
+            curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, $this->config->getVerifySsl());
+            curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, $this->config->getVerifySsl() ? 2 : 0);
 
             $response = curl_exec($curl);
             $error = curl_error($curl);
@@ -302,7 +301,8 @@ class TokenManager
             throw new \RuntimeException('Failed to write temporary cache file: ' . $tmp);
         }
 
-        @chmod($tmp, 0664);
+        // The file holds a live access token, so only the owner may read it
+        @chmod($tmp, 0600);
 
         if (!@rename($tmp, $this->tokenCacheFile)) {
             @unlink($tmp);
@@ -321,11 +321,8 @@ class TokenManager
                 error_log('[MpesaSDK] Token cache cleared: ' . $this->tokenCacheFile);
             }
         }
-        // Best-effort cleanup of lock file (not required for correctness)
-        $lockPath = $this->getLockFilePath();
-        if (file_exists($lockPath)) {
-            @unlink($lockPath);
-        }
+        // The lock file is left in place: deleting it while another process
+        // holds the lock would let a third process lock a new file at the same time.
     }
 
     /**

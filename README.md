@@ -41,7 +41,7 @@ $response = $mpesa->setBusinessCode('YOUR_TILL_OR_SHORTCODE')
     ->stk()
     ->setTransactionType('CustomerPayBillOnline') // or 'CustomerBuyGoodsOnline'
     ->setAmount(100)
-    ->setPhoneNumber('254712345678')
+    ->setPhoneNumber('0712345678')                // 07..., 7..., +254... and 254... are all accepted
     ->setCallbackUrl('https://yourdomain.com/callback')
     ->setAccountReference('INV-12345')
     ->setTransactionDesc('Payment for invoice INV-12345')
@@ -49,6 +49,19 @@ $response = $mpesa->setBusinessCode('YOUR_TILL_OR_SHORTCODE')
     ->getResponse();
 
 print_r($response);
+```
+
+Each call such as `$mpesa->stk()` returns a new service with its **own copy** of the settings.
+Set shared values (business code, pass key, certificate, URLs) on `$mpesa` first; values you
+set on a service (e.g. `setPartyA()`) only apply to that service.
+
+For Buy Goods, where the till number differs from the store number used as the business code:
+```php
+$mpesa->setBusinessCode('STORE_NUMBER')->stk()
+    ->setTransactionType('CustomerBuyGoodsOnline')
+    ->setPartyB('TILL_NUMBER')
+    // ...
+    ->push();
 ```
 
 ## Multi-process safe token cache
@@ -111,6 +124,9 @@ $resp = $mpesa->customerToBusiness()
 
 - Business to Customer (B2C)
 ```php
+$mpesa->setCertificate('/path/to/SandboxCertificate.cer'); // encrypts the password below
+// or: $mpesa->setSecurityCredential('ENCRYPTED_CREDENTIAL'); // no certificate needed
+
 $resp = $mpesa->businessToCustomer()
     ->setInitiatorName('YOUR_INITIATOR_NAME')
     ->setCommandId('SalaryPayment') // or BusinessPayment, PromotionPayment
@@ -129,7 +145,87 @@ $resp = $mpesa->businessToCustomer()
         'https://yourdomain.com/timeout',
         'https://yourdomain.com/result',
         'May 2023 salary'
-    );
+    )
+    ->getResponse();
+```
+
+- B2C Hakikisha (check who owns a number before paying; requires Safaricom approval)
+```php
+try {
+    $check = $mpesa->b2cHakikisha()
+        ->setPhoneNumber('0722000000')
+        ->setShortCode('123456') // defaults to setBusinessCode()
+        ->lookup();
+
+    if ($check->isFound()) {
+        echo $check->getCustomerName(); // "john M****** M******"
+        $check->getCustomer();          // ['firstName' => 'john', 'middleName' => 'M******', 'lastName' => 'M******']
+    } else {
+        echo $check->getErrorMessage();
+    }
+} catch (RuntimeException $e) {
+    // HTTP errors, e.g. "API error (400): The customer does not exist."
+}
+```
+
+- Mobile Number Validation (check a number is registered under an ID; commercial, billed per call)
+```php
+use Kemboielvis\MpesaSdkPhp\Services\MobileNumberValidationService as Kyc;
+
+$kyc = $mpesa->mobileNumberValidation()
+    ->setShortCode('776700')        // defaults to setBusinessCode()
+    ->setPhoneNumber('0710860780')
+    ->setIdType(Kyc::ID_NATIONAL)   // ID_NATIONAL (01), ID_MILITARY (02), ID_PASSPORT (05)
+    ->setIdNumber('45435345')
+    ->validate();
+
+$kyc->isMatch();     // true when responseCode is 4000 ("Details match successfully")
+$kyc->getResponse(); // responseRefID, responseCode, responseMessage, status
+```
+
+- Mobile Data Bundles (sell Safaricom data bundles in your app)
+```php
+use Kemboielvis\MpesaSdkPhp\Services\MobileDataBundlesService as Bundles;
+
+// 1. Fetch the offers for a customer
+$bundles = $mpesa->mobileDataBundles()->fetchOffers('0708374149');
+foreach ($bundles->getOffers() as $offer) {
+    echo $offer->offerName, ' - Ksh ', $offer->offerPrice, PHP_EOL; // "Weekly 2GB - Ksh 99"
+}
+
+// 2. Buy one (setOffer() copies offeringId, account, price, data amount and validity)
+$purchase = $mpesa->mobileDataBundles()
+    ->setPhoneNumber('0708374149')
+    ->setOffer($bundles->getOffers()[0])
+    ->setPaymentMode(Bundles::PAYMENT_MODE_AIRTIME) // or PAYMENT_MODE_MPESA
+    // ->setTransactionId('...')                    // optional; generated if omitted
+    ->purchase();
+
+$purchase->isPurchaseSuccessful();
+$transactionId = $purchase->getTransactionId();
+
+// 3. Check the status later (M-Pesa purchases complete asynchronously)
+$status = $mpesa->mobileDataBundles()->checkStatus($transactionId)->getResponse();
+// responseId, responseDesc, responseStatus ("1000" = success), responseCreated
+```
+
+- Business to Pochi (pay a customer's Pochi la Biashara wallet)
+```php
+$pochi = $mpesa->businessToPochi()
+    ->setInitiatorName('testapi')                   // needs "ORG B2C API initiator" role
+    ->setSecurityCredential('ENCRYPTED_CREDENTIAL') // from the Daraja portal
+    ->setPartyA('600992')                           // B2C shortcode; defaults to setBusinessCode()
+    ->setPhoneNumber('0705912645')                  // Pochi wallet number
+    ->setAmount(10)                                 // Ksh 10 - 250,000
+    ->setRemarks('Supplier payment')                // 2 - 100 characters
+    ->setOccasion('ChristmasPay')                   // optional
+    ->setQueueTimeoutUrl('https://yourdomain.com/pochi/timeout')
+    ->setResultUrl('https://yourdomain.com/pochi/result')
+    // ->setOriginatorConversationId('...')         // optional; a UUID is generated if omitted
+    ->pay();
+
+$pochi->getResponse();
+$id = $pochi->getOriginatorConversationId(); // store it to match the callback and avoid double payment
 ```
 
 - Reversal
@@ -150,8 +246,218 @@ $resp = $mpesa->reversal()
         'https://yourdomain.com/timeout',
         'https://yourdomain.com/result',
         'Customer refund'
-    );
+    )
+    ->getResponse();
 ```
+
+- Business Pay Bill (pay a paybill from your business account)
+```php
+$bill = $mpesa->businessPayBill()
+    ->setInitiator('API_Username')                  // needs "Org Business Pay Bill API initiator" role
+    ->setSecurityCredential('ENCRYPTED_CREDENTIAL') // from the Daraja portal
+    ->setPartyA('123456')                           // your shortcode; defaults to setBusinessCode()
+    ->setPartyB('000000')                           // paybill to pay
+    ->setAmount(239)
+    ->setAccountReference('353353')                 // account number at the paybill, max 13 chars
+    ->setRequester('254700000000')                  // optional: customer you are paying for
+    ->setRemarks('OK')
+    ->setOccasion('Rent')                           // optional
+    ->setQueueTimeoutUrl('https://yourdomain.com/b2b/timeout')
+    ->setResultUrl('https://yourdomain.com/b2b/result')
+    ->pay();
+
+$bill->getResponse(); // OriginatorConversationID, ConversationID, ResponseCode, ResponseDescription
+```
+
+- Business Buy Goods (pay a till / merchant store from your business account)
+```php
+$goods = $mpesa->businessBuyGoods()
+    ->setInitiator('API_Username')
+    ->setSecurityCredential('ENCRYPTED_CREDENTIAL')
+    ->setPartyB('000000')           // till, store number or merchant HO
+    ->setAmount(239)
+    ->setAccountReference('353353') // max 13 chars
+    ->setRequester('254700000000')  // optional
+    ->setQueueTimeoutUrl('https://yourdomain.com/b2b/businessbuygoods/queue')
+    ->setResultUrl('https://yourdomain.com/b2b/businessbuygoods/result')
+    ->pay();
+```
+It takes the same setters as Business Pay Bill.
+
+- B2C Account Top Up (load funds into a B2C shortcode)
+```php
+$topUp = $mpesa->b2cAccountTopUp()
+    ->setInitiator('testapi')                       // needs "Org Business Pay to Bulk API initiator" role
+    ->setSecurityCredential('ENCRYPTED_CREDENTIAL') // from the Daraja portal
+    ->setPartyA('600979')                           // your shortcode; defaults to setBusinessCode()
+    ->setPartyB('600000')                           // B2C shortcode to load
+    ->setAmount(239)
+    ->setAccountReference('353353')
+    ->setRequester('254708374149')                  // optional
+    ->setRemarks('Top up')
+    ->setQueueTimeoutUrl('https://yourdomain.com/topup/timeout')
+    ->setResultUrl('https://yourdomain.com/topup/result')
+    ->topUp();
+
+$topUp->getResponse(); // OriginatorConversationID, ConversationID, ResponseCode, ResponseDescription
+```
+
+- Account Balance
+```php
+$balance = $mpesa->setBusinessCode('600000')   // PartyA: your shortcode
+    ->accountBalance()
+    ->setInitiator('testapiuser')
+    ->setSecurityCredential('ENCRYPTED_CREDENTIAL') // from the Daraja portal
+    ->setIdentifierType('4')                        // optional, 4 = shortcode (default)
+    ->setRemarks('Balance check')
+    ->setQueueTimeoutUrl('https://yourdomain.com/timeout')
+    ->setResultUrl('https://yourdomain.com/balance/result')
+    ->accountBalance();
+
+$balance->getResponse(); // OriginatorConversationID, ConversationID, ResponseCode, ResponseDescription
+```
+
+The actual balance arrives later on your `ResultURL`. Parse it with:
+```php
+use Kemboielvis\MpesaSdkPhp\Services\AccountBalanceService;
+
+$balances = AccountBalanceService::parseBalances(file_get_contents('php://input'));
+// ['Working Account' => ['currency' => 'KES', 'current' => 700000.0, 'available' => 700000.0,
+//                        'reserved' => 0.0, 'uncleared' => 0.0], 'Utility Account' => [...], ...]
+```
+
+- Pull Transactions (recover C2B transactions from the last 48 hours)
+```php
+// One-time registration (1000 = registered, 1001 = already registered)
+$mpesa->pullTransactions()
+    ->setShortCode('600000')          // defaults to setBusinessCode()
+    ->setNominatedNumber('0722000000') // number in the shortcode KYC details
+    ->setCallbackUrl('https://yourdomain.com/pull/callback')
+    ->register()
+    ->getResponse();
+
+// Query (1000 = transactions found, 1001 = none in the period)
+$pull = $mpesa->pullTransactions()
+    ->setShortCode('600000')
+    ->setStartDate(new DateTime('-2 hours'))  // or '2020-08-04 08:36:00'
+    ->setEndDate(new DateTime())
+    ->setOffset(0)                             // row to start from, for paging
+    ->query();
+
+foreach ($pull->getTransactions() as $trx) {
+    echo $trx->transactionId, ' ', $trx->amount, ' ', $trx->billreference, PHP_EOL;
+}
+```
+
+- Tax Remittance (pay KRA)
+```php
+$tax = $mpesa->taxRemittance()
+    ->setInitiator('TaxPayer')
+    ->setSecurityCredential('ENCRYPTED_CREDENTIAL') // from the Daraja portal
+    ->setPartyA('888880')                           // your shortcode; defaults to setBusinessCode()
+    ->setAmount(239)
+    ->setAccountReference('PRN1234XN')              // payment registration number from KRA
+    ->setRemarks('VAT for March')
+    ->setQueueTimeoutUrl('https://yourdomain.com/b2b/remittax/queue')
+    ->setResultUrl('https://yourdomain.com/b2b/remittax/result')
+    ->remit();
+
+$tax->getResponse(); // OriginatorConversationID, ConversationID, ResponseCode, ResponseDescription
+```
+
+PartyB is fixed to KRA's shortcode `572572`. The final result (`Result.ResultCode`, `TransactionID`, ...) is posted to your `ResultURL`.
+
+- B2B Express Checkout (USSD Push to Till)
+```php
+$b2b = $mpesa->b2bExpressCheckout()
+    ->setPrimaryShortCode('000001')   // merchant till paying (debit party)
+    ->setReceiverShortCode('000002')  // your paybill (defaults to setBusinessCode())
+    ->setAmount(100)
+    ->setPaymentRef('INV-123')        // shown to the merchant in the prompt
+    ->setCallbackUrl('https://yourdomain.com/b2b/result')
+    ->setPartnerName('Your Business') // your name as the merchant knows it
+    // ->setRequestRefId('...')       // optional; a UUID is generated if omitted
+    ->push();
+
+$ack = $b2b->getResponse();          // e.g. { "code": "0", "status": "USSD Initiated Successfully" }
+$requestId = $b2b->getRequestRefId(); // matches `requestId` in the callback
+```
+
+The callback posted to your `callbackUrl` has `resultCode` (`0` = success, `4001` = user cancelled), `resultDesc`, `requestId`, `amount`, and on success `transactionId` and `status`.
+
+- Dynamic QR code
+```php
+$qr = $mpesa->dynamicQr()
+    ->setMerchantName('TEST SUPERMARKET')
+    ->setRefNo('INV-123')
+    ->setAmount(100)
+    ->setTrxCode('BG')   // BG=Buy Goods, WA=Agent withdraw, PB=Paybill, SM=Send Money, SB=Send to Business
+    ->setCpi('373132')   // till/paybill/phone; defaults to setBusinessCode()
+    ->setSize(300)       // optional, pixels (default 300)
+    ->generate();
+
+$qr->getResponse();           // ResponseCode, RequestID, ResponseDescription, QRCode
+$qr->getQrCode();             // base64 PNG
+echo '<img src="' . $qr->getQrCodeDataUri() . '">';
+$qr->saveQrCode('/path/to/qr.png');
+```
+
+- Lipa na Bonga (accept Bonga points as payment)
+```php
+// Optional: see what points are worth (1 point = Ksh 0.2)
+$ksh = $mpesa->lipaNaBonga()->calculatePoints(40)->getCalculatedAmount(); // 8.0
+
+$bonga = $mpesa->lipaNaBonga()
+    ->setPhoneNumber('0720776155')
+    ->setAmount(50)                 // points are worked out (250) unless you call setPoints()
+    ->setShortCode('888880')        // defaults to setBusinessCode()
+    ->setAccountNumber('INV-123')
+    // ->setConversionRate(0.2)     // default
+    ->redeem();                     // customer confirms with their M-Pesa PIN
+
+$bonga->isSuccessful();
+$bonga->getCustomerMessage();
+```
+The payment result is sent to your C2B confirmation URL, so register it first with `customerToBusiness()->registerUrl()`.
+
+- Age on Network (when was a number registered? commercial, billed per call)
+```php
+$age = $mpesa->ageOnNetwork()->check('0722000000');
+
+if ($age->isSuccessful()) {
+    $age->getRegistrationDate();      // raw value, e.g. "2019-01-12" or a message
+    $age->getRegistrationDateTime();  // DateTimeImmutable, or null if it is not a date
+}
+```
+
+- IoT SIM Management (manage Safaricom IoT SIMs and their messages)
+```php
+$iot = $mpesa->iotSim()
+    ->setVpnGroup('1-555162310488_VPN')           // your IoT account number
+    ->setUsername('darajasandbox@safaricom.co.ke'); // user registered on the account
+
+// SIM operations
+$sims = $iot->getAllSims(0, 20)->getSims();        // start index, page size
+$iot->queryLifeCycleStatus('0110100606')->getBody(); // desc, status, statusCode
+$info = $iot->queryCustomerInfo('0110100606')->getBody(); // offeringName, offeringId, ...
+$iot->activateSim('0110100606');
+$iot->renameAsset('0110100606', 'Tracker001');
+$iot->suspendSim('0110100606', $info->offeringId);
+$iot->resumeSim('0110100606', $info->offeringId);
+$iot->getActivationTrends(new DateTime('-30 days'), new DateTime()); // or '20240221', '20240421'
+
+// Messaging
+$iot->sendMessage('0110100606', 'Test');
+$messages = $iot->searchMessages('0110100606')->getMessages(); // "254" is added for you
+$iot->filterMessages('02-05-2024 08:39:11', new DateTime(), '1', 1, 10)->getMessages();
+$iot->getAllMessages(1, 10)->getMessages();
+$iot->deleteMessage($messages[0]->id);
+$iot->deleteMessageThread('0110100606');
+
+$iot->isSuccessful(); // header.responseCode === 200 for the last call
+```
+
+Some failures (e.g. a SIM that is not in your account) still return `responseCode` 200, so check `getBody()` as well.
 
 ## Error handling
 Wrap service calls in try/catch:
@@ -166,7 +472,46 @@ try {
 
 ## Advanced configuration
 
+- Security credentials (B2C, Reversal, Transaction Status, Account Balance, ...)
+
+M-Pesa expects the initiator password encrypted with Safaricom's public key certificate
+(RSA, PKCS #1 v1.5). Use **one** of these:
+
+```php
+// Option A: an encrypted credential you already have (e.g. from the Daraja portal).
+// No certificate needed.
+$mpesa->setSecurityCredential('ENCRYPTED_CREDENTIAL');   // for every service
+$mpesa->accountBalance()->setSecurityCredential('...');  // or for one service only
+
+// Option B: let the SDK encrypt the plain password with the certificate
+// (download the sandbox or production certificate from the Daraja portal).
+$mpesa->setCertificate('/path/to/ProductionCertificate.cer'); // path or PEM contents
+$mpesa->accountBalance()->accountBalance('initiator', 'INITIATOR_PASSWORD', /* ... */);
+```
+
+If a credential is set and there is no certificate, a password passed to a service is ignored
+and the credential is used. With neither, passing a password throws an `InvalidArgumentException`.
+
+- SSL / TLS certificate verification
+
+Off by default. With it off, anyone on the network path can impersonate Safaricom's servers and
+read your consumer key, secret and tokens, so **turn it on in production**:
+```php
+$mpesa->setVerifySsl(true);  // verify certificates on token and API requests
+$mpesa->setVerifySsl(false); // default
+```
+If requests then fail with certificate errors, update your system CA certificates
+(e.g. the `ca-certificates` package, or `curl.cainfo` in php.ini) rather than turning it off.
+
+- Timeouts
+```php
+$mpesa->setTimeouts(30, 5); // request timeout, connect timeout (seconds); defaults 60 and 10
+```
+
 - Token cache file
+
+The default cache file is `mpesa_token_<sha256 of your credentials>.json` in the system temp
+directory, readable only by the PHP user.
 ```php
 $mpesa->setStoreFile('/var/run/mpesa/token.json');
 $path = $mpesa->getResolvedStoreFilePath(); // inspect where it ends up
@@ -178,15 +523,21 @@ $mpesa->setDebug(true); // lock events, cache hits/misses, and token response me
 ```
 
 - Test-only: override base URL
-For automated tests or proxies, you can override via the underlying config (not usually needed in apps):
+For automated tests or proxies (not usually needed in apps). Set it before creating services:
 
 ```php
-// $config is internal; shown for completeness in test setups only
-// $config->setBaseUrl('http://127.0.0.1:8091');
+$mpesa->getConfig()->setBaseUrl('http://127.0.0.1:8091');
 ```
 
 ## Testing
 The repository ships with a few simple tests, including concurrency/tamper checks for the token cache.
+
+- Manual sandbox STK push (credentials come from environment variables, never from the code)
+```bash
+cd src/Tests
+MPESA_CONSUMER_KEY=... MPESA_CONSUMER_SECRET=... MPESA_PHONE=2547XXXXXXXX \
+MPESA_CALLBACK_URL=https://yourdomain.com/callback php tests.php
+```
 
 - Smoke test: cache read path
 ```bash
@@ -220,7 +571,7 @@ Notes:
   - Ensure the process has write permission to the cache directory.
   - Check for SELinux/AppArmor restrictions if applicable.
   - Enable debug with `$mpesa->setDebug(true)` to see lock/cache logs in error_log.
-- SSL errors on sandbox: ensure your environment has recent CA certificates; avoid disabling verification in production.
+- SSL errors after `setVerifySsl(true)`: update your CA certificates (`ca-certificates` package or `curl.cainfo` in php.ini); keep verification on in production.
 
 ## License
 MIT License. See `LICENSE` in this repository.

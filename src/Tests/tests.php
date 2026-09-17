@@ -1,29 +1,36 @@
 <?php
 
+// Manual STK push test against the sandbox.
+// Usage:
+//   MPESA_CONSUMER_KEY=... MPESA_CONSUMER_SECRET=... MPESA_PHONE=2547XXXXXXXX \
+//   MPESA_CALLBACK_URL=https://your-domain/callback php tests.php
+
 require "../../vendor/autoload.php";
 use Kemboielvis\MpesaSdkPhp\Mpesa;
 
-$mpesa = new Mpesa(
-    'rHZXmBkGz6Ne30cA923bp9G0rSAK41hsDVCq65x522WkVqCF',
-    'QC7BEvNXH9FfMATpduK1fTh1836XisZ9qG7cIZ15S9cDGzIsBMc2YAkAKsEr7wjo',
-    'sandbox'
-);
-$mpesa->setDebug(true);
-$mpesa = $mpesa->setCredentials(
-    'rHZXmBkGz6Ne30cA923bp9G0rSAK41hsDVCq65x522WkVqCF',
-    'QC7BEvNXH9FfMATpduK1fTh1836XisZ9qG7cIZ15S9cDGzIsBMc2YAkAKsEr7wjo',
-    'sandbox',
-);
-//$mpesa->passKey('bfb279f9aa9bdbcf158e97dd71a467cd2e0c893059b10f78e6b72ada1ed2c919');
-//$mpesa->phoneNumber('254111844429');
+$env = function (string $name, ?string $default = null): string {
+    $value = getenv($name);
+    if (false === $value || '' === $value) {
+        if (null === $default) {
+            fwrite(STDERR, "Missing environment variable: $name\n");
+            exit(1);
+        }
+        return $default;
+    }
+    return $value;
+};
 
-$stk = $mpesa->setBusinessCode('174379')
-    ->setPassKey('bfb279f9aa9bdbcf158e97dd71a467cd2e0c893059b10f78e6b72ada1ed2c919')
+$mpesa = new Mpesa($env('MPESA_CONSUMER_KEY'), $env('MPESA_CONSUMER_SECRET'), 'sandbox');
+$mpesa->setDebug(true);
+
+// Sandbox test shortcode and pass key published on the Daraja portal
+$stk = $mpesa->setBusinessCode($env('MPESA_SHORTCODE', '174379'))
+    ->setPassKey($env('MPESA_PASSKEY', 'bfb279f9aa9bdbcf158e97dd71a467cd2e0c893059b10f78e6b72ada1ed2c919'))
     ->stk()->setAmount('1')
-    ->setPhoneNumber("254111844429")
-    ->setCallBackUrl("https://f8e3-197-248-144-75.ngrok-free.app/callback")
+    ->setPhoneNumber($env('MPESA_PHONE'))
+    ->setCallBackUrl($env('MPESA_CALLBACK_URL'))
     ->setTransactionType("CustomerPayBillOnline")
-    ->setAccountReference("This is a test account reference")
+    ->setAccountReference("Test")
     ->setTransactionDesc("Test Push Mpesa");
 
 print_r($stk->push()->getResponse());
