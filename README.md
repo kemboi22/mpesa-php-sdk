@@ -153,6 +153,83 @@ $resp = $mpesa->reversal()
     );
 ```
 
+- Account Balance
+```php
+$balance = $mpesa->setBusinessCode('600000')   // PartyA: your shortcode
+    ->accountBalance()
+    ->setInitiator('testapiuser')
+    ->setSecurityCredential('ENCRYPTED_CREDENTIAL') // from the Daraja portal
+    ->setIdentifierType('4')                        // optional, 4 = shortcode (default)
+    ->setRemarks('Balance check')
+    ->setQueueTimeoutUrl('https://yourdomain.com/timeout')
+    ->setResultUrl('https://yourdomain.com/balance/result')
+    ->accountBalance();
+
+$balance->getResponse(); // OriginatorConversationID, ConversationID, ResponseCode, ResponseDescription
+```
+
+The actual balance arrives later on your `ResultURL`. Parse it with:
+```php
+use Kemboielvis\MpesaSdkPhp\Services\AccountBalanceService;
+
+$balances = AccountBalanceService::parseBalances(file_get_contents('php://input'));
+// ['Working Account' => ['currency' => 'KES', 'current' => 700000.0, 'available' => 700000.0,
+//                        'reserved' => 0.0, 'uncleared' => 0.0], 'Utility Account' => [...], ...]
+```
+
+- Tax Remittance (pay KRA)
+```php
+$tax = $mpesa->taxRemittance()
+    ->setInitiator('TaxPayer')
+    ->setSecurityCredential('ENCRYPTED_CREDENTIAL') // from the Daraja portal
+    ->setPartyA('888880')                           // your shortcode; defaults to setBusinessCode()
+    ->setAmount(239)
+    ->setAccountReference('PRN1234XN')              // payment registration number from KRA
+    ->setRemarks('VAT for March')
+    ->setQueueTimeoutUrl('https://yourdomain.com/b2b/remittax/queue')
+    ->setResultUrl('https://yourdomain.com/b2b/remittax/result')
+    ->remit();
+
+$tax->getResponse(); // OriginatorConversationID, ConversationID, ResponseCode, ResponseDescription
+```
+
+PartyB is fixed to KRA's shortcode `572572`. The final result (`Result.ResultCode`, `TransactionID`, ...) is posted to your `ResultURL`.
+
+- B2B Express Checkout (USSD Push to Till)
+```php
+$b2b = $mpesa->b2bExpressCheckout()
+    ->setPrimaryShortCode('000001')   // merchant till paying (debit party)
+    ->setReceiverShortCode('000002')  // your paybill (defaults to setBusinessCode())
+    ->setAmount(100)
+    ->setPaymentRef('INV-123')        // shown to the merchant in the prompt
+    ->setCallbackUrl('https://yourdomain.com/b2b/result')
+    ->setPartnerName('Your Business') // your name as the merchant knows it
+    // ->setRequestRefId('...')       // optional; a UUID is generated if omitted
+    ->push();
+
+$ack = $b2b->getResponse();          // e.g. { "code": "0", "status": "USSD Initiated Successfully" }
+$requestId = $b2b->getRequestRefId(); // matches `requestId` in the callback
+```
+
+The callback posted to your `callbackUrl` has `resultCode` (`0` = success, `4001` = user cancelled), `resultDesc`, `requestId`, `amount`, and on success `transactionId` and `status`.
+
+- Dynamic QR code
+```php
+$qr = $mpesa->dynamicQr()
+    ->setMerchantName('TEST SUPERMARKET')
+    ->setRefNo('INV-123')
+    ->setAmount(100)
+    ->setTrxCode('BG')   // BG=Buy Goods, WA=Agent withdraw, PB=Paybill, SM=Send Money, SB=Send to Business
+    ->setCpi('373132')   // till/paybill/phone; defaults to setBusinessCode()
+    ->setSize(300)       // optional, pixels (default 300)
+    ->generate();
+
+$qr->getResponse();           // ResponseCode, RequestID, ResponseDescription, QRCode
+$qr->getQrCode();             // base64 PNG
+echo '<img src="' . $qr->getQrCodeDataUri() . '">';
+$qr->saveQrCode('/path/to/qr.png');
+```
+
 ## Error handling
 Wrap service calls in try/catch:
 

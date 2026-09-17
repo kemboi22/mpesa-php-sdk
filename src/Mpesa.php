@@ -6,10 +6,13 @@ use Kemboielvis\MpesaSdkPhp\Abstracts\ApiClient;
 use Kemboielvis\MpesaSdkPhp\Abstracts\MpesaConfig;
 use Kemboielvis\MpesaSdkPhp\Abstracts\MpesaInterface;
 use Kemboielvis\MpesaSdkPhp\Services\AccountBalanceService;
+use Kemboielvis\MpesaSdkPhp\Services\B2BExpressCheckoutService;
 use Kemboielvis\MpesaSdkPhp\Services\BusinessToCustomerService;
 use Kemboielvis\MpesaSdkPhp\Services\CustomerToBusinessService;
+use Kemboielvis\MpesaSdkPhp\Services\DynamicQrService;
 use Kemboielvis\MpesaSdkPhp\Services\ReversalService;
 use Kemboielvis\MpesaSdkPhp\Services\StkService;
+use Kemboielvis\MpesaSdkPhp\Services\TaxRemittanceService;
 use Kemboielvis\MpesaSdkPhp\Services\TransactionStatusService;
 use Kemboielvis\MpesaSdkPhp\Abstracts\TokenManager;
 
@@ -195,6 +198,36 @@ class Mpesa
     public function reversal(): ReversalService
     {
         return new ReversalService($this->config, $this->client);
+    }
+
+    /**
+     * Get B2B Express Checkout (USSD Push to Till) service.
+     *
+     * @return B2BExpressCheckoutService
+     */
+    public function b2bExpressCheckout(): B2BExpressCheckoutService
+    {
+        return new B2BExpressCheckoutService($this->config, $this->client);
+    }
+
+    /**
+     * Get Dynamic QR code service.
+     *
+     * @return DynamicQrService
+     */
+    public function dynamicQr(): DynamicQrService
+    {
+        return new DynamicQrService($this->config, $this->client);
+    }
+
+    /**
+     * Get Tax Remittance (KRA) service.
+     *
+     * @return TaxRemittanceService
+     */
+    public function taxRemittance(): TaxRemittanceService
+    {
+        return new TaxRemittanceService($this->config, $this->client);
     }
 
     /**

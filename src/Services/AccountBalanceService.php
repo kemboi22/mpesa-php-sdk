@@ -9,7 +9,7 @@ class AccountBalanceService extends AbstractService
 {
     private string $initiator = "";
 
-    private string $identifier_type = "";
+    private string $identifier_type = "4";
 
     private string $remarks = "";
 
@@ -29,6 +29,7 @@ class AccountBalanceService extends AbstractService
 
     /**
      * Sets the identifier type for the account balance request.
+     * Defaults to "4" (organization short code).
      *
      * @param string $identifier_type The type of identifier to associate with the request.
      *
@@ -57,6 +58,48 @@ class AccountBalanceService extends AbstractService
     }
 
     /**
+     * Sets the encrypted security credential (e.g. generated on the Daraja portal).
+     *
+     * @param string $credential The encrypted security credential.
+     *
+     * @return $this
+     */
+    public function setSecurityCredential(string $credential): self
+    {
+        $this->config->overrideSecurityCredential($credential);
+
+        return $this;
+    }
+
+    /**
+     * Sets the URL that receives a notification if the request times out.
+     *
+     * @param string $url The queue timeout URL.
+     *
+     * @return $this
+     */
+    public function setQueueTimeoutUrl(string $url): self
+    {
+        $this->config->setQueueTimeoutUrl($url);
+
+        return $this;
+    }
+
+    /**
+     * Sets the URL that receives the balance result.
+     *
+     * @param string $url The result URL.
+     *
+     * @return $this
+     */
+    public function setResultUrl(string $url): self
+    {
+        $this->config->setResultUrl($url);
+
+        return $this;
+    }
+
+    /**
      * Initiates an account balance request to the M-Pesa API.
      *
      * @param string|null $initiator          The username of the M-Pesa API operator.
@@ -67,7 +110,9 @@ class AccountBalanceService extends AbstractService
      * @param string|null $queue_url          The URL to receive timeout notifications.
      * @param string|null $result_url         The URL to receive the response from the M-Pesa API.
      *
-     * @return array The response from the M-Pesa API.
+     * @return $this
+     *
+     * @throws \InvalidArgumentException If required parameters are missing
      */
     public function accountBalance(
         ?string $initiator = null,
@@ -77,7 +122,7 @@ class AccountBalanceService extends AbstractService
         ?string $remarks = null,
         ?string $queue_url = null,
         ?string $result_url = null
-    ): array {
+    ): self {
         if ($initiator !== null) {
             $this->setInitiator($initiator);
         }
@@ -100,6 +145,8 @@ class AccountBalanceService extends AbstractService
             $this->config->setSecurityCredential($initiator_password);
         }
 
+        $this->validateParams();
+
         $requestData = [
             "Initiator" => $this->initiator,
             "SecurityCredential" => $this->config->getSecurityCredential(),
@@ -111,6 +158,94 @@ class AccountBalanceService extends AbstractService
             "ResultURL" => $this->config->getResultUrl(),
         ];
 
-        return $this->client->executeRequest($requestData, "/mpesa/accountbalance/v1/query");
+        $this->response = $this->client->executeRequest($requestData, "/mpesa/accountbalance/v1/query");
+
+        return $this;
+    }
+
+    /**
+     * Validate required parameters before querying.
+     *
+     * @throws \InvalidArgumentException If required parameters are missing
+     */
+    private function validateParams(): void
+    {
+        if (empty($this->initiator)) {
+            throw new \InvalidArgumentException('Initiator is required');
+        }
+
+        if (empty($this->config->getSecurityCredential())) {
+            throw new \InvalidArgumentException('Security credential is required');
+        }
+
+        if (empty($this->config->getBusinessCode())) {
+            throw new \InvalidArgumentException('Business code (PartyA) is required');
+        }
+
+        if (empty($this->config->getQueueTimeoutUrl())) {
+            throw new \InvalidArgumentException('Queue timeout URL is required');
+        }
+
+        if (empty($this->config->getResultUrl())) {
+            throw new \InvalidArgumentException('Result URL is required');
+        }
+    }
+
+    /**
+     * Parse the balances out of an account balance result callback.
+     *
+     * The AccountBalance result parameter looks like
+     * "Working Account|KES|700000.00|700000.00|0.00|0.00&Utility Account|KES|...".
+     * Each account is "Name|Currency|Current|Available|Reserved|Uncleared".
+     *
+     * @param array|object|string $callback The decoded callback body, or its raw JSON
+     *
+     * @return array<string, array{currency: string, current: float, available: float, reserved: float, uncleared: float}>
+     *               Balances keyed by account name; empty if the result has no balance
+     */
+    public static function parseBalances($callback): array
+    {
+        if (is_string($callback)) {
+            $callback = json_decode($callback, true);
+        } elseif (is_object($callback)) {
+            $callback = json_decode(json_encode($callback), true);
+        }
+
+        $parameters = $callback['Result']['ResultParameters']['ResultParameter'] ?? [];
+
+        // A single parameter may be sent as an object instead of a list
+        if (isset($parameters['Key'])) {
+            $parameters = [$parameters];
+        }
+
+        $raw = null;
+        foreach ($parameters as $parameter) {
+            if (($parameter['Key'] ?? null) === 'AccountBalance') {
+                $raw = (string)($parameter['Value'] ?? '');
+                break;
+            }
+        }
+
+        if (empty($raw)) {
+            return [];
+        }
+
+        $balances = [];
+        foreach (explode('&', $raw) as $account) {
+            $fields = explode('|', $account);
+            if (count($fields) < 3) {
+                continue;
+            }
+
+            $balances[trim($fields[0])] = [
+                'currency' => $fields[1],
+                'current' => (float)($fields[2] ?? 0),
+                'available' => (float)($fields[3] ?? 0),
+                'reserved' => (float)($fields[4] ?? 0),
+                'uncleared' => (float)($fields[5] ?? 0),
+            ];
+        }
+
+        return $balances;
     }
 }
