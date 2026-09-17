@@ -33,14 +33,19 @@ abstract class BaseService
     /**
      * Generate a password for secure API calls.
      *
+     * Pass the same timestamp that is sent in the request; the password is
+     * only valid for that exact timestamp.
+     *
+     * @param string|null $timestamp The request timestamp (defaults to now)
+     *
      * @return string The password
      */
-    protected function generatePassword(): string
+    protected function generatePassword(?string $timestamp = null): string
     {
         return base64_encode(
             $this->config->getBusinessCode() .
             $this->config->getPassKey() .
-            $this->generateTimestamp()
+            ($timestamp ?? $this->generateTimestamp())
         );
     }
 

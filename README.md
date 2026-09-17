@@ -51,6 +51,15 @@ $response = $mpesa->setBusinessCode('YOUR_TILL_OR_SHORTCODE')
 print_r($response);
 ```
 
+For Buy Goods, where the till number differs from the store number used as the business code:
+```php
+$mpesa->setBusinessCode('STORE_NUMBER')->stk()
+    ->setTransactionType('CustomerBuyGoodsOnline')
+    ->setPartyB('TILL_NUMBER')
+    // ...
+    ->push();
+```
+
 ## Multi-process safe token cache
 The SDK caches the OAuth access token on disk to minimize network calls. The cache is safe for concurrent use by multiple PHP processes:
 - A lock file prevents the "thundering herd" when the token needs refreshing.
