@@ -17,6 +17,7 @@ use Kemboielvis\MpesaSdkPhp\Services\BusinessToPochiService;
 use Kemboielvis\MpesaSdkPhp\Services\CustomerToBusinessService;
 use Kemboielvis\MpesaSdkPhp\Services\DynamicQrService;
 use Kemboielvis\MpesaSdkPhp\Services\IotSimService;
+use Kemboielvis\MpesaSdkPhp\Services\LipaNaBongaService;
 use Kemboielvis\MpesaSdkPhp\Services\MobileDataBundlesService;
 use Kemboielvis\MpesaSdkPhp\Services\MobileNumberValidationService;
 use Kemboielvis\MpesaSdkPhp\Services\PullTransactionsService;
@@ -338,6 +339,16 @@ class Mpesa
     public function ageOnNetwork(): AgeOnNetworkService
     {
         return new AgeOnNetworkService($this->config, $this->client);
+    }
+
+    /**
+     * Get Lipa na Bonga service.
+     *
+     * @return LipaNaBongaService
+     */
+    public function lipaNaBonga(): LipaNaBongaService
+    {
+        return new LipaNaBongaService($this->config, $this->client);
     }
 
     /**

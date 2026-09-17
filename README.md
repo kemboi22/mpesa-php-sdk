@@ -384,6 +384,24 @@ echo '<img src="' . $qr->getQrCodeDataUri() . '">';
 $qr->saveQrCode('/path/to/qr.png');
 ```
 
+- Lipa na Bonga (accept Bonga points as payment)
+```php
+// Optional: see what points are worth (1 point = Ksh 0.2)
+$ksh = $mpesa->lipaNaBonga()->calculatePoints(40)->getCalculatedAmount(); // 8.0
+
+$bonga = $mpesa->lipaNaBonga()
+    ->setPhoneNumber('0720776155')
+    ->setAmount(50)                 // points are worked out (250) unless you call setPoints()
+    ->setShortCode('888880')        // defaults to setBusinessCode()
+    ->setAccountNumber('INV-123')
+    // ->setConversionRate(0.2)     // default
+    ->redeem();                     // customer confirms with their M-Pesa PIN
+
+$bonga->isSuccessful();
+$bonga->getCustomerMessage();
+```
+The payment result is sent to your C2B confirmation URL, so register it first with `customerToBusiness()->registerUrl()`.
+
 - Age on Network (when was a number registered? commercial, billed per call)
 ```php
 $age = $mpesa->ageOnNetwork()->check('0722000000');
