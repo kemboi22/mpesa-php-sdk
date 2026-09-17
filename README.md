@@ -166,6 +166,32 @@ $kyc->isMatch();     // true when responseCode is 4000 ("Details match successfu
 $kyc->getResponse(); // responseRefID, responseCode, responseMessage, status
 ```
 
+- Mobile Data Bundles (sell Safaricom data bundles in your app)
+```php
+use Kemboielvis\MpesaSdkPhp\Services\MobileDataBundlesService as Bundles;
+
+// 1. Fetch the offers for a customer
+$bundles = $mpesa->mobileDataBundles()->fetchOffers('0708374149');
+foreach ($bundles->getOffers() as $offer) {
+    echo $offer->offerName, ' - Ksh ', $offer->offerPrice, PHP_EOL; // "Weekly 2GB - Ksh 99"
+}
+
+// 2. Buy one (setOffer() copies offeringId, account, price, data amount and validity)
+$purchase = $mpesa->mobileDataBundles()
+    ->setPhoneNumber('0708374149')
+    ->setOffer($bundles->getOffers()[0])
+    ->setPaymentMode(Bundles::PAYMENT_MODE_AIRTIME) // or PAYMENT_MODE_MPESA
+    // ->setTransactionId('...')                    // optional; generated if omitted
+    ->purchase();
+
+$purchase->isPurchaseSuccessful();
+$transactionId = $purchase->getTransactionId();
+
+// 3. Check the status later (M-Pesa purchases complete asynchronously)
+$status = $mpesa->mobileDataBundles()->checkStatus($transactionId)->getResponse();
+// responseId, responseDesc, responseStatus ("1000" = success), responseCreated
+```
+
 - Business to Pochi (pay a customer's Pochi la Biashara wallet)
 ```php
 $pochi = $mpesa->businessToPochi()

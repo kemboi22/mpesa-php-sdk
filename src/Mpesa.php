@@ -15,6 +15,7 @@ use Kemboielvis\MpesaSdkPhp\Services\BusinessToCustomerService;
 use Kemboielvis\MpesaSdkPhp\Services\BusinessToPochiService;
 use Kemboielvis\MpesaSdkPhp\Services\CustomerToBusinessService;
 use Kemboielvis\MpesaSdkPhp\Services\DynamicQrService;
+use Kemboielvis\MpesaSdkPhp\Services\MobileDataBundlesService;
 use Kemboielvis\MpesaSdkPhp\Services\MobileNumberValidationService;
 use Kemboielvis\MpesaSdkPhp\Services\PullTransactionsService;
 use Kemboielvis\MpesaSdkPhp\Services\ReversalService;
@@ -305,6 +306,16 @@ class Mpesa
     public function mobileNumberValidation(): MobileNumberValidationService
     {
         return new MobileNumberValidationService($this->config, $this->client);
+    }
+
+    /**
+     * Get Mobile Data Bundles (Dynamic Offers) service.
+     *
+     * @return MobileDataBundlesService
+     */
+    public function mobileDataBundles(): MobileDataBundlesService
+    {
+        return new MobileDataBundlesService($this->config, $this->client);
     }
 
     /**
