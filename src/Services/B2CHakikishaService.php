@@ -17,6 +17,8 @@ class B2CHakikishaService extends AbstractService
 
     private string $requestId = '';
 
+    private string $sentRequestId = '';
+
     /**
      * Set the Safaricom phone number to look up.
      *
@@ -49,8 +51,8 @@ class B2CHakikishaService extends AbstractService
     }
 
     /**
-     * Set a unique identifier for this request.
-     * A UUID v4 is generated automatically when not set.
+     * Set a unique identifier for the next request.
+     * When not set, a new UUID v4 is generated for every lookup.
      *
      * @param string $requestId The request ID
      *
@@ -70,7 +72,7 @@ class B2CHakikishaService extends AbstractService
      */
     public function getRequestId(): string
     {
-        return $this->requestId;
+        return $this->sentRequestId;
     }
 
     /**
@@ -93,13 +95,11 @@ class B2CHakikishaService extends AbstractService
             throw new \InvalidArgumentException('Short code is required');
         }
 
-        if (empty($this->requestId)) {
-            $this->requestId = $this->generateUuid();
-        }
+        $this->sentRequestId = $this->requestId ?: $this->generateUuid();
 
         $data = [
             'header' => [
-                'requestID' => $this->requestId,
+                'requestID' => $this->sentRequestId,
                 'timestamp' => (string)time(),
             ],
             'body' => [

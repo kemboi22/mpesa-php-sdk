@@ -35,6 +35,8 @@ class MobileDataBundlesService extends AbstractService
 
     private string $transactionId = '';
 
+    private string $sentTransactionId = '';
+
     private string $paymentMode = '';
 
     /**
@@ -154,8 +156,8 @@ class MobileDataBundlesService extends AbstractService
     }
 
     /**
-     * Set the transaction ID for the purchase; used later to check its status.
-     * A numeric ID is generated automatically when not set.
+     * Set the transaction ID for the next purchase; used later to check its status.
+     * When not set, a new numeric ID is generated for every purchase.
      *
      * @param int|string $transactionId The transaction ID
      *
@@ -175,7 +177,7 @@ class MobileDataBundlesService extends AbstractService
      */
     public function getTransactionId(): string
     {
-        return $this->transactionId;
+        return $this->sentTransactionId;
     }
 
     /**
@@ -284,9 +286,7 @@ class MobileDataBundlesService extends AbstractService
             }
         }
 
-        if (empty($this->transactionId)) {
-            $this->transactionId = $this->generateTransactionId();
-        }
+        $this->sentTransactionId = $this->transactionId ?: $this->generateTransactionId();
 
         $data = [
             'offeringId' => $this->offeringId,
@@ -295,7 +295,7 @@ class MobileDataBundlesService extends AbstractService
             'resourceAmount' => $this->resourceAmount,
             'validity' => $this->validity,
             'msisdn' => $this->phoneNumber,
-            'transactionId' => $this->transactionId,
+            'transactionId' => $this->sentTransactionId,
             'paymentMode' => $this->paymentMode,
         ];
 
@@ -329,7 +329,7 @@ class MobileDataBundlesService extends AbstractService
         ?string $transactionId = null,
         string $serviceAccountId = self::DYNAMIC_OFFERS_SERVICE_ACCOUNT_ID
     ): self {
-        $id = $transactionId ?? $this->transactionId;
+        $id = $transactionId ?? $this->sentTransactionId;
 
         if (empty($id)) {
             throw new \InvalidArgumentException('Transaction ID is required');

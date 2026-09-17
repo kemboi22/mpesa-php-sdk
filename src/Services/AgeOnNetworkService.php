@@ -106,7 +106,10 @@ class AgeOnNetworkService extends AbstractService
      * Get the registration date as a date object, when the API returned a date.
      * Accepts both "dd-mm-yyyy" and "yyyy-mm-dd".
      *
-     * @return \DateTimeImmutable|null Null if there is no date or it is a message
+     * "01-01-1900" (used in Safaricom's samples) is treated as a placeholder, not a date;
+     * the raw value is still available from getRegistrationDate().
+     *
+     * @return \DateTimeImmutable|null Null if there is no real date
      */
     public function getRegistrationDateTime(): ?\DateTimeImmutable
     {
@@ -115,7 +118,7 @@ class AgeOnNetworkService extends AbstractService
         foreach (['!d-m-Y', '!Y-m-d'] as $format) {
             $date = \DateTimeImmutable::createFromFormat($format, $value);
             if (false !== $date && $date->format(substr($format, 1)) === $value) {
-                return $date;
+                return '1900-01-01' === $date->format('Y-m-d') ? null : $date;
             }
         }
 

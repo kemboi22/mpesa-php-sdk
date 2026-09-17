@@ -24,6 +24,8 @@ class B2BExpressCheckoutService extends AbstractService
 
     private string $requestRefId = '';
 
+    private string $sentRequestRefId = '';
+
     /**
      * Set the debit party: the merchant's till number paying the vendor.
      *
@@ -110,8 +112,8 @@ class B2BExpressCheckoutService extends AbstractService
     }
 
     /**
-     * Set a unique identifier for this request.
-     * A UUID v4 is generated automatically when not set.
+     * Set a unique identifier for the next request.
+     * When not set, a new UUID v4 is generated for every push.
      *
      * @param string $requestRefId The request reference ID
      *
@@ -132,7 +134,7 @@ class B2BExpressCheckoutService extends AbstractService
      */
     public function getRequestRefId(): string
     {
-        return $this->requestRefId;
+        return $this->sentRequestRefId;
     }
 
     /**
@@ -180,11 +182,9 @@ class B2BExpressCheckoutService extends AbstractService
             $this->receiverShortCode = $this->config->getBusinessCode();
         }
 
-        if (empty($this->requestRefId)) {
-            $this->requestRefId = $this->generateUuid();
-        }
-
         $this->validatePushParams();
+
+        $this->sentRequestRefId = $this->requestRefId ?: $this->generateUuid();
 
         $data = [
             'primaryShortCode' => $this->primaryShortCode,
@@ -193,7 +193,7 @@ class B2BExpressCheckoutService extends AbstractService
             'paymentRef' => $this->paymentRef,
             'callbackUrl' => $this->callbackUrl,
             'partnerName' => $this->partnerName,
-            'RequestRefID' => $this->requestRefId,
+            'RequestRefID' => $this->sentRequestRefId,
         ];
 
         $this->response = $this->client->executeRequest($data, '/v1/ussdpush/get-msisdn');

@@ -21,6 +21,8 @@ class MobileNumberValidationService extends AbstractService
 
     private string $requestRefId = '';
 
+    private string $sentRequestRefId = '';
+
     private string $shortCode = '';
 
     private string $phoneNumber = '';
@@ -30,8 +32,8 @@ class MobileNumberValidationService extends AbstractService
     private string $idNumber = '';
 
     /**
-     * Set a unique identifier for this request.
-     * A UUID v4 is generated automatically when not set.
+     * Set a unique identifier for the next request.
+     * When not set, a new UUID v4 is generated for every validation.
      *
      * @param string $requestRefId The request reference ID
      *
@@ -51,7 +53,7 @@ class MobileNumberValidationService extends AbstractService
      */
     public function getRequestRefId(): string
     {
-        return $this->requestRefId;
+        return $this->sentRequestRefId;
     }
 
     /**
@@ -151,12 +153,10 @@ class MobileNumberValidationService extends AbstractService
             throw new \InvalidArgumentException('ID number is required');
         }
 
-        if (empty($this->requestRefId)) {
-            $this->requestRefId = $this->generateUuid();
-        }
+        $this->sentRequestRefId = $this->requestRefId ?: $this->generateUuid();
 
         $data = [
-            'requestRefID' => $this->requestRefId,
+            'requestRefID' => $this->sentRequestRefId,
             'shortCode' => $shortCode,
             'msisdn' => $this->phoneNumber,
             'idType' => $this->idType,

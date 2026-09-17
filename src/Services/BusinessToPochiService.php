@@ -16,6 +16,8 @@ class BusinessToPochiService extends AbstractService
 
     private string $originatorConversationId = '';
 
+    private string $sentOriginatorConversationId = '';
+
     private string $initiatorName = '';
 
     private string $amount = '';
@@ -27,8 +29,8 @@ class BusinessToPochiService extends AbstractService
     private string $occasion = '';
 
     /**
-     * Sets a unique ID for this request, used to prevent double disbursement.
-     * A UUID v4 is generated automatically when not set.
+     * Sets a unique ID for the next payment, used to prevent double disbursement.
+     * When not set, a new UUID v4 is generated for every payment.
      *
      * @param string $id The originator conversation ID.
      *
@@ -49,7 +51,7 @@ class BusinessToPochiService extends AbstractService
      */
     public function getOriginatorConversationId(): string
     {
-        return $this->originatorConversationId;
+        return $this->sentOriginatorConversationId;
     }
 
     /**
@@ -244,13 +246,11 @@ class BusinessToPochiService extends AbstractService
     {
         $this->validateParams();
 
-        if (empty($this->originatorConversationId)) {
-            $this->originatorConversationId = $this->generateUuid();
-        }
+        $this->sentOriginatorConversationId = $this->originatorConversationId ?: $this->generateUuid();
 
         // "Occassion" is spelled as the M-Pesa API expects it
         $requestData = [
-            'OriginatorConversationID' => $this->originatorConversationId,
+            'OriginatorConversationID' => $this->sentOriginatorConversationId,
             'InitiatorName' => $this->initiatorName,
             'SecurityCredential' => $this->config->getSecurityCredential(),
             'CommandID' => 'BusinessPayToPochi',
