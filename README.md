@@ -41,7 +41,7 @@ $response = $mpesa->setBusinessCode('YOUR_TILL_OR_SHORTCODE')
     ->stk()
     ->setTransactionType('CustomerPayBillOnline') // or 'CustomerBuyGoodsOnline'
     ->setAmount(100)
-    ->setPhoneNumber('254712345678')
+    ->setPhoneNumber('0712345678')                // 07..., 7..., +254... and 254... are all accepted
     ->setCallbackUrl('https://yourdomain.com/callback')
     ->setAccountReference('INV-12345')
     ->setTransactionDesc('Payment for invoice INV-12345')
@@ -132,7 +132,8 @@ $resp = $mpesa->businessToCustomer()
         'https://yourdomain.com/timeout',
         'https://yourdomain.com/result',
         'May 2023 salary'
-    );
+    )
+    ->getResponse();
 ```
 
 - B2C Hakikisha (check who owns a number before paying; requires Safaricom approval)
@@ -232,7 +233,8 @@ $resp = $mpesa->reversal()
         'https://yourdomain.com/timeout',
         'https://yourdomain.com/result',
         'Customer refund'
-    );
+    )
+    ->getResponse();
 ```
 
 - Business Pay Bill (pay a paybill from your business account)

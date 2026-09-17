@@ -104,7 +104,7 @@ class TransactionStatusService extends AbstractService
      * @param string|null $result_url         The URL to receive the response from the M-Pesa API.
      * @param string|null $occasion           Any additional information to be associated with the transaction.
      *
-     * @return array The response from the M-Pesa API.
+     * @return $this Read the result with getResponse()
      */
     public function checkTransactionStatus(
         ?string $initiator = null,

@@ -15,9 +15,9 @@ class BusinessToCustomerService extends AbstractService
 
     private string $occasion = "";
 
-    private int $amount;
+    private int $amount = 0;
 
-    private string $phone_number;
+    private string $phone_number = "";
 
     /**
      * Sets the username of the M-Pesa API operator.
@@ -107,7 +107,9 @@ class BusinessToCustomerService extends AbstractService
      * @param string|null $result_url         The URL to receive the response from the M-Pesa API.
      * @param string|null $occasion           Any additional information to be associated with the transaction.
      *
-     * @return array The response from the M-Pesa API.
+     * @return $this Read the result with getResponse()
+     *
+     * @throws \InvalidArgumentException If required parameters are missing
      */
     public function paymentRequest(
         ?string $initiator_name = null,
@@ -120,7 +122,7 @@ class BusinessToCustomerService extends AbstractService
         ?string $queue_timeout_url = null,
         ?string $result_url = null,
         ?string $occasion = null
-    ): array {
+    ): self {
         if ($initiator_name !== null) {
             $this->setInitiatorName($initiator_name);
         }
@@ -152,11 +154,13 @@ class BusinessToCustomerService extends AbstractService
             $this->config->setSecurityCredential($initiator_password);
         }
 
+        $this->validateParams();
+
         $requestData = [
             "InitiatorName" => $this->initiator_name,
             "SecurityCredential" => $this->config->getSecurityCredential(),
             "CommandID" => $this->command_id,
-            "Amount" => (int)$this->amount,
+            "Amount" => $this->amount,
             "PartyA" => $this->config->getBusinessCode(),
             "PartyB" => $this->phone_number,
             "Remarks" => $this->remarks,
@@ -165,7 +169,49 @@ class BusinessToCustomerService extends AbstractService
             "Occassion" => $this->occasion,
         ];
 
-        return $this->client->executeRequest($requestData, "/mpesa/b2c/v1/paymentrequest");
+        $this->response = $this->client->executeRequest($requestData, "/mpesa/b2c/v1/paymentrequest");
+
+        return $this;
+    }
+
+    /**
+     * Validate required parameters before sending.
+     *
+     * @throws \InvalidArgumentException If required parameters are missing
+     */
+    private function validateParams(): void
+    {
+        if (empty($this->initiator_name)) {
+            throw new \InvalidArgumentException('Initiator name is required');
+        }
+
+        if (empty($this->config->getSecurityCredential())) {
+            throw new \InvalidArgumentException('Security credential is required');
+        }
+
+        if (empty($this->command_id)) {
+            throw new \InvalidArgumentException('Command ID is required');
+        }
+
+        if ($this->amount < 1) {
+            throw new \InvalidArgumentException('Amount is required');
+        }
+
+        if (empty($this->config->getBusinessCode())) {
+            throw new \InvalidArgumentException('Business code (PartyA) is required');
+        }
+
+        if (empty($this->phone_number)) {
+            throw new \InvalidArgumentException('Phone number is required');
+        }
+
+        if (empty($this->config->getQueueTimeoutUrl())) {
+            throw new \InvalidArgumentException('Queue timeout URL is required');
+        }
+
+        if (empty($this->config->getResultUrl())) {
+            throw new \InvalidArgumentException('Result URL is required');
+        }
     }
 
     /**
@@ -188,16 +234,17 @@ class BusinessToCustomerService extends AbstractService
     /**
      * Sets the phone number of the customer.
      *
-     * This method assigns a phone number to the transaction.
-     * The phone number should be a string of digits.
+     * The number is normalised to the 254XXXXXXXXX format.
      *
      * @param string $phone_number The phone number of the customer.
      *
      * @return self
+     *
+     * @throws \RuntimeException If the phone number is invalid
      */
     public function setPhoneNumber(string $phone_number): self
     {
-        $this->phone_number = $phone_number;
+        $this->phone_number = $this->cleanPhoneNumber($phone_number);
 
         return $this;
     }

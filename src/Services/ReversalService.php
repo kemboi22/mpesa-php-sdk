@@ -110,7 +110,9 @@ class ReversalService extends AbstractService
      * @param string|null $result_url               The URL to receive the response from the M-Pesa API.
      * @param string|null $occasion                 Any additional information to be associated with the transaction.
      *
-     * @return array The response from the M-Pesa API.
+     * @return $this Read the result with getResponse()
+     *
+     * @throws \InvalidArgumentException If required parameters are missing
      */
     public function reverse(
         ?string $initiator = null,
@@ -122,7 +124,7 @@ class ReversalService extends AbstractService
         ?string $queue_timeout_url = null,
         ?string $result_url = null,
         ?string $occasion = null
-    ): array {
+    ): self {
         if ($initiator !== null) {
             $this->setInitiator($initiator);
         }
@@ -151,6 +153,8 @@ class ReversalService extends AbstractService
             $this->config->setSecurityCredential($initiator_password);
         }
 
+        $this->validateParams();
+
         $requestData = [
             "Initiator" => $this->initiator,
             "SecurityCredential" => $this->config->getSecurityCredential(),
@@ -164,6 +168,44 @@ class ReversalService extends AbstractService
             "Occassion" => $this->occasion,
         ];
 
-        return $this->client->executeRequest($requestData, "/mpesa/reversal/v1/request");
+        $this->response = $this->client->executeRequest($requestData, "/mpesa/reversal/v1/request");
+
+        return $this;
+    }
+
+    /**
+     * Validate required parameters before sending.
+     *
+     * @throws \InvalidArgumentException If required parameters are missing
+     */
+    private function validateParams(): void
+    {
+        if (empty($this->initiator)) {
+            throw new \InvalidArgumentException('Initiator is required');
+        }
+
+        if (empty($this->config->getSecurityCredential())) {
+            throw new \InvalidArgumentException('Security credential is required');
+        }
+
+        if (empty($this->transaction_id)) {
+            throw new \InvalidArgumentException('Transaction ID is required');
+        }
+
+        if (empty($this->config->getBusinessCode())) {
+            throw new \InvalidArgumentException('Receiver party (business code) is required');
+        }
+
+        if (empty($this->receiver_identifier_type)) {
+            throw new \InvalidArgumentException('Receiver identifier type is required');
+        }
+
+        if (empty($this->config->getQueueTimeoutUrl())) {
+            throw new \InvalidArgumentException('Queue timeout URL is required');
+        }
+
+        if (empty($this->config->getResultUrl())) {
+            throw new \InvalidArgumentException('Result URL is required');
+        }
     }
 }

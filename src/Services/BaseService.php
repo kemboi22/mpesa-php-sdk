@@ -61,37 +61,46 @@ abstract class BaseService
     /**
      * Clean a phone number for API calls.
      *
+     * Accepts "0712345678", "712345678", "+254 712 345 678", "254-712-345-678", ...
+     * and returns digits with the country code, e.g. "254712345678".
+     *
      * @param string $phone       The phone number
      * @param string $countryCode The country code
      *
-     * @return string The cleaned phone number, or an empty string/array if the phone number is invalid
+     * @return string The cleaned phone number
      *
-     * @throws \Exception
+     * @throws \RuntimeException If the phone number is empty or invalid
      */
     public function cleanPhoneNumber(string $phone, string $countryCode = '254'): string
     {
-        if (empty($phone)) {
-            throw new \RuntimeException('Phone number cannot be null!');
-        }
-
         $phone = trim($phone);
+        $digits = preg_replace('/\D/', '', $phone);
 
-        // Check if phone length is too short
-        if (strlen($phone) < 9) {
-            throw new \RuntimeException('Phone number is too short!');
+        if ('' === $digits) {
+            throw new \RuntimeException('Phone number cannot be empty!');
         }
 
         if (str_starts_with($phone, '+')) {
-            // Remove the '+' and keep digits
-            return preg_replace('/\D/', '', substr($phone, 1));
-        }
-
-        if (str_starts_with($phone, '0')) {
+            // Already in international format
+            $number = $digits;
+        } elseif (str_starts_with($digits, '0')) {
             // Replace leading 0 with country code
-            return $countryCode . preg_replace('/\D/', '', substr($phone, 1));
+            $number = $countryCode . substr($digits, 1);
+        } elseif (9 === strlen($digits)) {
+            // Local number without the leading 0, e.g. 712345678
+            $number = $countryCode . $digits;
+        } else {
+            $number = $digits;
         }
 
-        // Otherwise, just clean to digits
-        return preg_replace('/\D/', '', $phone);
+        if (strlen($number) < 10) {
+            throw new \RuntimeException('Phone number is too short!');
+        }
+
+        if (strlen($number) > 15) {
+            throw new \RuntimeException('Phone number is too long!');
+        }
+
+        return $number;
     }
 }
