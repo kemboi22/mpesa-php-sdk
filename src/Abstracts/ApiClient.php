@@ -82,6 +82,8 @@ class ApiClient implements MpesaInterface, SupportsGetRequests
         curl_setopt($curl, CURLOPT_HEADER, false);
         curl_setopt($curl, CURLOPT_CONNECTTIMEOUT, $this->config->getConnectTimeout());
         curl_setopt($curl, CURLOPT_TIMEOUT, $this->config->getTimeout());
+        curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, $this->config->getVerifySsl());
+        curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, $this->config->getVerifySsl() ? 2 : 0);
 
         $response = curl_exec($curl);
         $error = curl_error($curl);

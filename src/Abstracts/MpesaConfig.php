@@ -35,6 +35,8 @@ class MpesaConfig
 
     private int $connectTimeout = 10;
 
+    private bool $verifySsl = false;
+
     public function __construct(
         string  $consumerKey,
         string  $consumerSecret,
@@ -367,6 +369,26 @@ class MpesaConfig
         }
 
         $this->timeout = $seconds;
+        return $this;
+    }
+
+    /**
+     * Whether TLS certificates are verified on requests to M-Pesa.
+     */
+    public function getVerifySsl(): bool
+    {
+        return $this->verifySsl;
+    }
+
+    /**
+     * Turn TLS certificate verification on or off (off by default).
+     *
+     * With verification off, anyone on the network path can impersonate the
+     * M-Pesa servers and read your credentials, so turn it on in production.
+     */
+    public function setVerifySsl(bool $verifySsl): self
+    {
+        $this->verifySsl = $verifySsl;
         return $this;
     }
 

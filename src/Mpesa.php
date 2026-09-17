@@ -181,6 +181,21 @@ class Mpesa
     }
 
     /**
+     * Turn TLS certificate verification on or off (off by default).
+     * Turn it on in production.
+     *
+     * @param bool $verifySsl Whether to verify M-Pesa's TLS certificates
+     *
+     * @return self
+     */
+    public function setVerifySsl(bool $verifySsl): self
+    {
+        $this->config->setVerifySsl($verifySsl);
+
+        return $this;
+    }
+
+    /**
      * Set request timeouts.
      *
      * @param int $timeout        Maximum seconds a request may take

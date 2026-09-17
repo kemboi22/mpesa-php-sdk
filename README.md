@@ -488,6 +488,17 @@ $mpesa->accountBalance()->accountBalance('initiator', 'INITIATOR_PASSWORD', /* .
 If a credential is set and there is no certificate, a password passed to a service is ignored
 and the credential is used. With neither, passing a password throws an `InvalidArgumentException`.
 
+- SSL / TLS certificate verification
+
+Off by default. With it off, anyone on the network path can impersonate Safaricom's servers and
+read your consumer key, secret and tokens, so **turn it on in production**:
+```php
+$mpesa->setVerifySsl(true);  // verify certificates on token and API requests
+$mpesa->setVerifySsl(false); // default
+```
+If requests then fail with certificate errors, update your system CA certificates
+(e.g. the `ca-certificates` package, or `curl.cainfo` in php.ini) rather than turning it off.
+
 - Timeouts
 ```php
 $mpesa->setTimeouts(30, 5); // request timeout, connect timeout (seconds); defaults 60 and 10
@@ -556,7 +567,7 @@ Notes:
   - Ensure the process has write permission to the cache directory.
   - Check for SELinux/AppArmor restrictions if applicable.
   - Enable debug with `$mpesa->setDebug(true)` to see lock/cache logs in error_log.
-- SSL errors on sandbox: ensure your environment has recent CA certificates; avoid disabling verification in production.
+- SSL errors after `setVerifySsl(true)`: update your CA certificates (`ca-certificates` package or `curl.cainfo` in php.ini); keep verification on in production.
 
 ## License
 MIT License. See `LICENSE` in this repository.

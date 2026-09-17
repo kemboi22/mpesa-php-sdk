@@ -170,8 +170,8 @@ class TokenManager
             curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
             curl_setopt($curl, CURLOPT_CONNECTTIMEOUT, $this->config->getConnectTimeout());
             curl_setopt($curl, CURLOPT_TIMEOUT, $this->config->getTimeout());
-            curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
-            curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, 0);
+            curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, $this->config->getVerifySsl());
+            curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, $this->config->getVerifySsl() ? 2 : 0);
 
             $response = curl_exec($curl);
             $error = curl_error($curl);
