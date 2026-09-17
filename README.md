@@ -384,6 +384,16 @@ echo '<img src="' . $qr->getQrCodeDataUri() . '">';
 $qr->saveQrCode('/path/to/qr.png');
 ```
 
+- Age on Network (when was a number registered? commercial, billed per call)
+```php
+$age = $mpesa->ageOnNetwork()->check('0722000000');
+
+if ($age->isSuccessful()) {
+    $age->getRegistrationDate();      // raw value, e.g. "2019-01-12" or a message
+    $age->getRegistrationDateTime();  // DateTimeImmutable, or null if it is not a date
+}
+```
+
 - IoT SIM Management (manage Safaricom IoT SIMs and their messages)
 ```php
 $iot = $mpesa->iotSim()

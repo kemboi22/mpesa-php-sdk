@@ -6,6 +6,7 @@ use Kemboielvis\MpesaSdkPhp\Abstracts\ApiClient;
 use Kemboielvis\MpesaSdkPhp\Abstracts\MpesaConfig;
 use Kemboielvis\MpesaSdkPhp\Abstracts\MpesaInterface;
 use Kemboielvis\MpesaSdkPhp\Services\AccountBalanceService;
+use Kemboielvis\MpesaSdkPhp\Services\AgeOnNetworkService;
 use Kemboielvis\MpesaSdkPhp\Services\B2BExpressCheckoutService;
 use Kemboielvis\MpesaSdkPhp\Services\B2CAccountTopUpService;
 use Kemboielvis\MpesaSdkPhp\Services\B2CHakikishaService;
@@ -327,6 +328,16 @@ class Mpesa
     public function iotSim(): IotSimService
     {
         return new IotSimService($this->config, $this->client);
+    }
+
+    /**
+     * Get Age on Network service.
+     *
+     * @return AgeOnNetworkService
+     */
+    public function ageOnNetwork(): AgeOnNetworkService
+    {
+        return new AgeOnNetworkService($this->config, $this->client);
     }
 
     /**
