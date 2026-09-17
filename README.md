@@ -153,6 +153,58 @@ $resp = $mpesa->reversal()
     );
 ```
 
+- Business Pay Bill (pay a paybill from your business account)
+```php
+$bill = $mpesa->businessPayBill()
+    ->setInitiator('API_Username')                  // needs "Org Business Pay Bill API initiator" role
+    ->setSecurityCredential('ENCRYPTED_CREDENTIAL') // from the Daraja portal
+    ->setPartyA('123456')                           // your shortcode; defaults to setBusinessCode()
+    ->setPartyB('000000')                           // paybill to pay
+    ->setAmount(239)
+    ->setAccountReference('353353')                 // account number at the paybill, max 13 chars
+    ->setRequester('254700000000')                  // optional: customer you are paying for
+    ->setRemarks('OK')
+    ->setOccasion('Rent')                           // optional
+    ->setQueueTimeoutUrl('https://yourdomain.com/b2b/timeout')
+    ->setResultUrl('https://yourdomain.com/b2b/result')
+    ->pay();
+
+$bill->getResponse(); // OriginatorConversationID, ConversationID, ResponseCode, ResponseDescription
+```
+
+- Business Buy Goods (pay a till / merchant store from your business account)
+```php
+$goods = $mpesa->businessBuyGoods()
+    ->setInitiator('API_Username')
+    ->setSecurityCredential('ENCRYPTED_CREDENTIAL')
+    ->setPartyB('000000')           // till, store number or merchant HO
+    ->setAmount(239)
+    ->setAccountReference('353353') // max 13 chars
+    ->setRequester('254700000000')  // optional
+    ->setQueueTimeoutUrl('https://yourdomain.com/b2b/businessbuygoods/queue')
+    ->setResultUrl('https://yourdomain.com/b2b/businessbuygoods/result')
+    ->pay();
+```
+It takes the same setters as Business Pay Bill.
+
+- B2C Account Top Up (load funds into a B2C shortcode)
+```php
+$topUp = $mpesa->b2cAccountTopUp()
+    ->setInitiator('testapi')                       // needs "Org Business Pay to Bulk API initiator" role
+    ->setSecurityCredential('ENCRYPTED_CREDENTIAL') // from the Daraja portal
+    ->setPartyA('600979')                           // your shortcode; defaults to setBusinessCode()
+    ->setPartyB('600000')                           // B2C shortcode to load
+    ->setAmount(239)
+    ->setAccountReference('353353')
+    ->setRequester('254708374149')                  // optional
+    ->setRemarks('Top up')
+    ->setQueueTimeoutUrl('https://yourdomain.com/topup/timeout')
+    ->setResultUrl('https://yourdomain.com/topup/result')
+    ->topUp();
+
+$topUp->getResponse(); // OriginatorConversationID, ConversationID, ResponseCode, ResponseDescription
+```
+
 - Account Balance
 ```php
 $balance = $mpesa->setBusinessCode('600000')   // PartyA: your shortcode

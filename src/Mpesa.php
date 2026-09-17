@@ -7,6 +7,9 @@ use Kemboielvis\MpesaSdkPhp\Abstracts\MpesaConfig;
 use Kemboielvis\MpesaSdkPhp\Abstracts\MpesaInterface;
 use Kemboielvis\MpesaSdkPhp\Services\AccountBalanceService;
 use Kemboielvis\MpesaSdkPhp\Services\B2BExpressCheckoutService;
+use Kemboielvis\MpesaSdkPhp\Services\B2CAccountTopUpService;
+use Kemboielvis\MpesaSdkPhp\Services\BusinessBuyGoodsService;
+use Kemboielvis\MpesaSdkPhp\Services\BusinessPayBillService;
 use Kemboielvis\MpesaSdkPhp\Services\BusinessToCustomerService;
 use Kemboielvis\MpesaSdkPhp\Services\CustomerToBusinessService;
 use Kemboielvis\MpesaSdkPhp\Services\DynamicQrService;
@@ -239,6 +242,36 @@ class Mpesa
     public function pullTransactions(): PullTransactionsService
     {
         return new PullTransactionsService($this->config, $this->client);
+    }
+
+    /**
+     * Get Business Pay Bill service.
+     *
+     * @return BusinessPayBillService
+     */
+    public function businessPayBill(): BusinessPayBillService
+    {
+        return new BusinessPayBillService($this->config, $this->client);
+    }
+
+    /**
+     * Get Business Buy Goods service.
+     *
+     * @return BusinessBuyGoodsService
+     */
+    public function businessBuyGoods(): BusinessBuyGoodsService
+    {
+        return new BusinessBuyGoodsService($this->config, $this->client);
+    }
+
+    /**
+     * Get B2C Account Top Up service.
+     *
+     * @return B2CAccountTopUpService
+     */
+    public function b2cAccountTopUp(): B2CAccountTopUpService
+    {
+        return new B2CAccountTopUpService($this->config, $this->client);
     }
 
     /**
